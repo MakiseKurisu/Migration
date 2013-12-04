@@ -18,8 +18,8 @@ typedef NTSTATUS *PNTSTATUS;
 
 typedef struct _CLIENT_ID
 {
-     HANDLE UniqueProcess;
-     HANDLE UniqueThread;
+    HANDLE UniqueProcess;
+    HANDLE UniqueThread;
 } CLIENT_ID, *PCLIENT_ID;
 
 typedef struct _INITIAL_TEB
@@ -188,160 +188,160 @@ typedef enum _POOL_TYPE {
 } POOL_TYPE;
 
 typedef struct _OBJECT_TYPE_INFORMATION {
-	UNICODE_STRING          TypeName;
-	ULONG                   TotalNumberOfHandles;
-	ULONG                   TotalNumberOfObjects;
-	WCHAR                   Unused1[8];
-	ULONG                   HighWaterNumberOfHandles;
-	ULONG                   HighWaterNumberOfObjects;
-	WCHAR                   Unused2[8];
-	ACCESS_MASK             InvalidAttributes;
-	GENERIC_MAPPING         GenericMapping;
-	ACCESS_MASK             ValidAttributes;
-	BOOLEAN                 SecurityRequired;
-	BOOLEAN                 MaintainHandleCount;
-	USHORT                  MaintainTypeList;
-	POOL_TYPE               PoolType;
-	ULONG                   DefaultPagedPoolCharge;
-	ULONG                   DefaultNonPagedPoolCharge;
+    UNICODE_STRING          TypeName;
+    ULONG                   TotalNumberOfHandles;
+    ULONG                   TotalNumberOfObjects;
+    WCHAR                   Unused1[8];
+    ULONG                   HighWaterNumberOfHandles;
+    ULONG                   HighWaterNumberOfObjects;
+    WCHAR                   Unused2[8];
+    ACCESS_MASK             InvalidAttributes;
+    GENERIC_MAPPING         GenericMapping;
+    ACCESS_MASK             ValidAttributes;
+    BOOLEAN                 SecurityRequired;
+    BOOLEAN                 MaintainHandleCount;
+    USHORT                  MaintainTypeList;
+    POOL_TYPE               PoolType;
+    ULONG                   DefaultPagedPoolCharge;
+    ULONG                   DefaultNonPagedPoolCharge;
 } OBJECT_TYPE_INFORMATION, *POBJECT_TYPE_INFORMATION;
 
 
 typedef struct _OBJECT_NAME_INFORMATION {
-	UNICODE_STRING          Name;
-	WCHAR                   NameBuffer[1];
+    UNICODE_STRING          Name;
+    WCHAR                   NameBuffer[1];
 } OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
 
 typedef struct _OBJECT_TYPES_INFORMATION
 {
- ULONG NumberOfObjectsTypes;
- OBJECT_TYPE_INFORMATION ObjectTypeInformation[1];
+    ULONG NumberOfObjectsTypes;
+    OBJECT_TYPE_INFORMATION ObjectTypeInformation[1];
 } OBJECT_TYPES_INFORMATION, *POBJECT_TYPES_INFORMATION;
 
 typedef struct _OBJECT_BASIC_INFORMATION {
-	ULONG                   Attributes;
-	ACCESS_MASK             DesiredAccess;
-	ULONG                   HandleCount;
-	ULONG                   ReferenceCount;
-	ULONG                   PagedPoolUsage;
-	ULONG                   NonPagedPoolUsage;
-	ULONG                   Reserved[3];
-	ULONG                   NameInformationLength;
-	ULONG                   TypeInformationLength;
-	ULONG                   SecurityDescriptorLength;
-	LARGE_INTEGER           CreationTime;
+    ULONG                   Attributes;
+    ACCESS_MASK             DesiredAccess;
+    ULONG                   HandleCount;
+    ULONG                   ReferenceCount;
+    ULONG                   PagedPoolUsage;
+    ULONG                   NonPagedPoolUsage;
+    ULONG                   Reserved[3];
+    ULONG                   NameInformationLength;
+    ULONG                   TypeInformationLength;
+    ULONG                   SecurityDescriptorLength;
+    LARGE_INTEGER           CreationTime;
 } OBJECT_BASIC_INFORMATION, *POBJECT_BASIC_INFORMATION;
 
 typedef struct _RTL_DRIVE_LETTER_CURDIR {
-	USHORT Flags;
-	USHORT Length;
-	ULONG TimeStamp;
-	UNICODE_STRING DosPath;
+    USHORT Flags;
+    USHORT Length;
+    ULONG TimeStamp;
+    UNICODE_STRING DosPath;
 } RTL_DRIVE_LETTER_CURDIR, *PRTL_DRIVE_LETTER_CURDIR;
 
 typedef struct _RTL_USER_PROCESS_PARAMETERS {
-	ULONG                   MaximumLength;
-	ULONG                   Length;
-	ULONG                   Flags;
-	ULONG                   DebugFlags;
-	PVOID                   ConsoleHandle;
-	ULONG                   ConsoleFlags;
-	HANDLE                  StdInputHandle;
-	HANDLE                  StdOutputHandle;
-	HANDLE                  StdErrorHandle;
-	UNICODE_STRING          CurrentDirectoryPath;
-	HANDLE                  CurrentDirectoryHandle;
-	UNICODE_STRING          DllPath;
-	UNICODE_STRING          ImagePathName;
-	UNICODE_STRING          CommandLine;
-	PVOID                   Environment;
-	ULONG                   StartingPositionLeft;
-	ULONG                   StartingPositionTop;
-	ULONG                   Width;
-	ULONG                   Height;
-	ULONG                   CharWidth;
-	ULONG                   CharHeight;
-	ULONG                   ConsoleTextAttributes;
-	ULONG                   WindowFlags;
-	ULONG                   ShowWindowFlags;
-	UNICODE_STRING          WindowTitle;
-	UNICODE_STRING          DesktopName;
-	UNICODE_STRING          ShellInfo;
-	UNICODE_STRING          RuntimeData;
-	RTL_DRIVE_LETTER_CURDIR DLCurrentDirectory[0x20];
+    ULONG                   MaximumLength;
+    ULONG                   Length;
+    ULONG                   Flags;
+    ULONG                   DebugFlags;
+    PVOID                   ConsoleHandle;
+    ULONG                   ConsoleFlags;
+    HANDLE                  StdInputHandle;
+    HANDLE                  StdOutputHandle;
+    HANDLE                  StdErrorHandle;
+    UNICODE_STRING          CurrentDirectoryPath;
+    HANDLE                  CurrentDirectoryHandle;
+    UNICODE_STRING          DllPath;
+    UNICODE_STRING          ImagePathName;
+    UNICODE_STRING          CommandLine;
+    PVOID                   Environment;
+    ULONG                   StartingPositionLeft;
+    ULONG                   StartingPositionTop;
+    ULONG                   Width;
+    ULONG                   Height;
+    ULONG                   CharWidth;
+    ULONG                   CharHeight;
+    ULONG                   ConsoleTextAttributes;
+    ULONG                   WindowFlags;
+    ULONG                   ShowWindowFlags;
+    UNICODE_STRING          WindowTitle;
+    UNICODE_STRING          DesktopName;
+    UNICODE_STRING          ShellInfo;
+    UNICODE_STRING          RuntimeData;
+    RTL_DRIVE_LETTER_CURDIR DLCurrentDirectory[0x20];
 } RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
 
 typedef struct _PEB_LDR_DATA {
-	ULONG                   Length;
-	BOOLEAN                 Initialized;
-	PVOID                   SsHandle;
-	LIST_ENTRY              InLoadOrderModuleList;
-	LIST_ENTRY              InMemoryOrderModuleList;
-	LIST_ENTRY              InInitializationOrderModuleList;
+    ULONG                   Length;
+    BOOLEAN                 Initialized;
+    PVOID                   SsHandle;
+    LIST_ENTRY              InLoadOrderModuleList;
+    LIST_ENTRY              InMemoryOrderModuleList;
+    LIST_ENTRY              InInitializationOrderModuleList;
 } PEB_LDR_DATA, *PPEB_LDR_DATA;
 
-typedef void (*PPEBLOCKROUTINE)(PVOID PebLock);
+typedef void(*PPEBLOCKROUTINE)(PVOID PebLock);
 
 typedef struct _PEB_FREE_BLOCK {
-	_PEB_FREE_BLOCK* Next;
-	ULONG Size;
+    _PEB_FREE_BLOCK* Next;
+    ULONG Size;
 } PEB_FREE_BLOCK, *PPEB_FREE_BLOCK;
 
 typedef struct _PEB {
-	BOOLEAN                 InheritedAddressSpace;
-	BOOLEAN                 ReadImageFileExecOptions;
-	BOOLEAN                 BeingDebugged;
-	BOOLEAN                 Spare;
-	HANDLE                  Mutant;
-	PVOID                   ImageBaseAddress;
-	PPEB_LDR_DATA           LoaderData;
-	PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
-	PVOID                   SubSystemData;
-	PVOID                   ProcessHeap;
-	PVOID                   FastPebLock;
-	PPEBLOCKROUTINE         FastPebLockRoutine;
-	PPEBLOCKROUTINE         FastPebUnlockRoutine;
-	ULONG                   EnvironmentUpdateCount;
-	VOID**                  KernelCallbackTable;
-	PVOID                   EventLogSection;
-	PVOID                   EventLog;
-	PPEB_FREE_BLOCK         FreeList;
-	ULONG                   TlsExpansionCounter;
-	PVOID                   TlsBitmap;
-	ULONG                   TlsBitmapBits[0x2];
-	PVOID                   ReadOnlySharedMemoryBase;
-	PVOID                   ReadOnlySharedMemoryHeap;
-	VOID**                  ReadOnlyStaticServerData;
-	PVOID                   AnsiCodePageData;
-	PVOID                   OemCodePageData;
-	PVOID                   UnicodeCaseTableData;
-	ULONG                   NumberOfProcessors;
-	ULONG                   NtGlobalFlag;
-	BYTE                    Spare2[0x4];
-	LARGE_INTEGER           CriticalSectionTimeout;
-	ULONG                   HeapSegmentReserve;
-	ULONG                   HeapSegmentCommit;
-	ULONG                   HeapDeCommitTotalFreeThreshold;
-	ULONG                   HeapDeCommitFreeBlockThreshold;
-	ULONG                   NumberOfHeaps;
-	ULONG                   MaximumNumberOfHeaps;
-	VOID**                  *ProcessHeaps;
-	PVOID                   GdiSharedHandleTable;
-	PVOID                   ProcessStarterHelper;
-	PVOID                   GdiDCAttributeList;
-	PVOID                   LoaderLock;
-	ULONG                   OSMajorVersion;
-	ULONG                   OSMinorVersion;
-	ULONG                   OSBuildNumber;
-	ULONG                   OSPlatformId;
-	ULONG                   ImageSubSystem;
-	ULONG                   ImageSubSystemMajorVersion;
-	ULONG                   ImageSubSystemMinorVersion;
-	ULONG                   GdiHandleBuffer[0x22];
-	ULONG                   PostProcessInitRoutine;
-	ULONG                   TlsExpansionBitmap;
-	BYTE                    TlsExpansionBitmapBits[0x80];
-	ULONG                   SessionId;
+    BOOLEAN                 InheritedAddressSpace;
+    BOOLEAN                 ReadImageFileExecOptions;
+    BOOLEAN                 BeingDebugged;
+    BOOLEAN                 Spare;
+    HANDLE                  Mutant;
+    PVOID                   ImageBaseAddress;
+    PPEB_LDR_DATA           LoaderData;
+    PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
+    PVOID                   SubSystemData;
+    PVOID                   ProcessHeap;
+    PVOID                   FastPebLock;
+    PPEBLOCKROUTINE         FastPebLockRoutine;
+    PPEBLOCKROUTINE         FastPebUnlockRoutine;
+    ULONG                   EnvironmentUpdateCount;
+    VOID**                  KernelCallbackTable;
+    PVOID                   EventLogSection;
+    PVOID                   EventLog;
+    PPEB_FREE_BLOCK         FreeList;
+    ULONG                   TlsExpansionCounter;
+    PVOID                   TlsBitmap;
+    ULONG                   TlsBitmapBits[0x2];
+    PVOID                   ReadOnlySharedMemoryBase;
+    PVOID                   ReadOnlySharedMemoryHeap;
+    VOID**                  ReadOnlyStaticServerData;
+    PVOID                   AnsiCodePageData;
+    PVOID                   OemCodePageData;
+    PVOID                   UnicodeCaseTableData;
+    ULONG                   NumberOfProcessors;
+    ULONG                   NtGlobalFlag;
+    BYTE                    Spare2[0x4];
+    LARGE_INTEGER           CriticalSectionTimeout;
+    ULONG                   HeapSegmentReserve;
+    ULONG                   HeapSegmentCommit;
+    ULONG                   HeapDeCommitTotalFreeThreshold;
+    ULONG                   HeapDeCommitFreeBlockThreshold;
+    ULONG                   NumberOfHeaps;
+    ULONG                   MaximumNumberOfHeaps;
+    VOID**                  *ProcessHeaps;
+    PVOID                   GdiSharedHandleTable;
+    PVOID                   ProcessStarterHelper;
+    PVOID                   GdiDCAttributeList;
+    PVOID                   LoaderLock;
+    ULONG                   OSMajorVersion;
+    ULONG                   OSMinorVersion;
+    ULONG                   OSBuildNumber;
+    ULONG                   OSPlatformId;
+    ULONG                   ImageSubSystem;
+    ULONG                   ImageSubSystemMajorVersion;
+    ULONG                   ImageSubSystemMinorVersion;
+    ULONG                   GdiHandleBuffer[0x22];
+    ULONG                   PostProcessInitRoutine;
+    ULONG                   TlsExpansionBitmap;
+    BYTE                    TlsExpansionBitmapBits[0x80];
+    ULONG                   SessionId;
 } PEB, *PPEB;
 
 
@@ -355,51 +355,51 @@ typedef struct _PROCESS_BASIC_INFORMATION {
 
 typedef struct _OBJECT_ATTRIBUTES
 {
-     ULONG Length;
-     PVOID RootDirectory;
-     PUNICODE_STRING ObjectName;
-     ULONG Attributes;
-     PVOID SecurityDescriptor;
-     PVOID SecurityQualityOfService;
+    ULONG Length;
+    PVOID RootDirectory;
+    PUNICODE_STRING ObjectName;
+    ULONG Attributes;
+    PVOID SecurityDescriptor;
+    PVOID SecurityQualityOfService;
 } OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
 
 #define DUPLICATE_SAME_ATTRIBUTES 0x4
 
 typedef enum _PROCESS_INFORMATION_CLASS {
-	ProcessBasicInformation,
-	ProcessQuotaLimits,
-	ProcessIoCounters,
-	ProcessVmCounters,
-	ProcessTimes,
-	ProcessBasePriority,
-	ProcessRaisePriority,
-	ProcessDebugPort,
-	ProcessExceptionPort,
-	ProcessAccessToken,
-	ProcessLdtInformation,
-	ProcessLdtSize,
-	ProcessDefaultHardErrorMode,
-	ProcessIoPortHandlers,
-	ProcessPooledUsageAndLimits,
-	ProcessWorkingSetWatch,
-	ProcessUserModeIOPL,
-	ProcessEnableAlignmentFaultFixup,
-	ProcessPriorityClass,
-	ProcessWx86Information,
-	ProcessHandleCount,
-	ProcessAffinityMask,
-	ProcessPriorityBoost,
-	MaxProcessInfoClass
+    ProcessBasicInformation,
+    ProcessQuotaLimits,
+    ProcessIoCounters,
+    ProcessVmCounters,
+    ProcessTimes,
+    ProcessBasePriority,
+    ProcessRaisePriority,
+    ProcessDebugPort,
+    ProcessExceptionPort,
+    ProcessAccessToken,
+    ProcessLdtInformation,
+    ProcessLdtSize,
+    ProcessDefaultHardErrorMode,
+    ProcessIoPortHandlers,
+    ProcessPooledUsageAndLimits,
+    ProcessWorkingSetWatch,
+    ProcessUserModeIOPL,
+    ProcessEnableAlignmentFaultFixup,
+    ProcessPriorityClass,
+    ProcessWx86Information,
+    ProcessHandleCount,
+    ProcessAffinityMask,
+    ProcessPriorityBoost,
+    MaxProcessInfoClass
 } PROCESS_INFORMATION_CLASS, *PPROCESS_INFORMATION_CLASS;
 
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation(IN SYSTEM_INFORMATION_CLASS SystemInformationClass, OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryObject(IN HANDLE ObjectHandle, IN OBJECT_INFORMATION_CLASS ObjectInformationClass, OUT PVOID ObjectInformation, IN ULONG Length, OUT PULONG ResultLength );
+extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryObject(IN HANDLE ObjectHandle, IN OBJECT_INFORMATION_CLASS ObjectInformationClass, OUT PVOID ObjectInformation, IN ULONG Length, OUT PULONG ResultLength);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwDuplicateObject(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
 extern "C" NTSYSAPI NTSTATUS NTAPI NtOpenProcess(OUT PHANDLE ProcessHandle, IN ACCESS_MASK AccessMask, IN POBJECT_ATTRIBUTES ObjectAttributes, IN PCLIENT_ID ClientId);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess(IN HANDLE ProcessHandle, IN PROCESS_INFORMATION_CLASS ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwClose(IN HANDLE ObjectHandle);
 
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwAllocateVirtualMemory(__in HANDLE ProcessHandle,__inout PVOID *BaseAddress,__in ULONG_PTR ZeroBits,__inout PSIZE_T RegionSize,__in ULONG AllocationType,__in ULONG Protect);
+extern "C" NTSYSAPI NTSTATUS NTAPI ZwAllocateVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __in ULONG_PTR ZeroBits, __inout PSIZE_T RegionSize, __in ULONG AllocationType, __in ULONG Protect);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwWriteVirtualMemory(IN HANDLE ProcessHandle, IN PVOID BaseAddress, IN PVOID Buffer, IN ULONG NumberOfBytesToWrite, OUT PULONG NumberOfBytesWritten OPTIONAL);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory(IN HANDLE ProcessHandle, IN OUT PVOID *BaseAddress, IN OUT PULONG_PTR NumberOfBytesToProtect, IN ULONG NewAccessProtection, OUT PULONG OldAccessProtection);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwGetContextThread(IN HANDLE ThreadHandle, OUT PCONTEXT pContext);

@@ -8,22 +8,22 @@
 
 enum HOWTOCLOSE
 {
-	DONT_CLOSE = 0,
-	CLOSE_DIRECT,
-	CLOSE_INJECT
+    DONT_CLOSE = 0,
+    CLOSE_DIRECT,
+    CLOSE_INJECT
 };
 
-typedef HOWTOCLOSE (*CLOSECALLBACK)(wchar_t* MutantName,ULONG NameLength);
+typedef HOWTOCLOSE(*CLOSECALLBACK)(wchar_t* MutantName, ULONG NameLength);
 
 BYTE GetObjectTypeNumber(wchar_t* ObjectName);
-BOOL RemoteCloseHandle(HANDLE hProcess,HANDLE hHandle);
+BOOL RemoteCloseHandle(HANDLE hProcess, HANDLE hHandle);
 BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose);
 
 HANDLE WINAPI OsCreateRemoteThread2(
-									HANDLE hProcess,
-									LPSECURITY_ATTRIBUTES lpThreadAttributes,
-									SIZE_T dwStackSize,
-									LPTHREAD_START_ROUTINE lpStartAddress,
-									LPVOID lpParameter,
-									DWORD dwCreationFlags,
-									LPDWORD lpThreadId);
+    HANDLE hProcess,
+    LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    SIZE_T dwStackSize,
+    LPTHREAD_START_ROUTINE lpStartAddress,
+    LPVOID lpParameter,
+    DWORD dwCreationFlags,
+    LPDWORD lpThreadId);

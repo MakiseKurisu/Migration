@@ -4,5 +4,5 @@
 
 #pragma comment(lib,"comctl32.lib")
 
-typedef VOID (WINAPI *GNSITYPE)(LPSYSTEM_INFO lpSystemInfo);
+typedef VOID(WINAPI *GNSITYPE)(LPSYSTEM_INFO lpSystemInfo);
 

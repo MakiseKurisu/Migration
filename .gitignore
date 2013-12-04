@@ -1,0 +1,6 @@
+# Visual Studio files
+*.suo
+*.lib
+*.exp
+*/Win32*
+*/x64*
