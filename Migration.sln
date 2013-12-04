@@ -1,9 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Migration", "Migration\Migration.vcproj", "{63FD4740-00F2-44F9-966A-CE93D8D4A307}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Migration", "Migration\Migration.vcxproj", "{63FD4740-00F2-44F9-966A-CE93D8D4A307}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Thunderneko", "Thunderneko\Thunderneko.vcproj", "{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Thunderneko", "Thunderneko\Thunderneko.vcxproj", "{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
