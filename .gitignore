@@ -2,5 +2,6 @@
 *.suo
 *.lib
 *.exp
+*.aps
 */Win32*
 */x64*

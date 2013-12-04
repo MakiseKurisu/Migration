@@ -257,7 +257,7 @@ int InjectEnumerateAndCloseMutant()
 
 INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    int wmId, wmEvent;
+    int wmId;
 
     switch (message)
     {
@@ -267,14 +267,13 @@ INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             WCHAR WindowTitle[200] = { 0 };
             GetWindowText(hWnd, WindowTitle, 200);
-            wcscat_s(WindowTitle, L" (x64)");
+            lstrcat(WindowTitle, L" (x64)");
             SetWindowText(hWnd, WindowTitle);
         }
 #endif
         return TRUE;
     case WM_COMMAND:
         wmId = LOWORD(wParam);
-        wmEvent = HIWORD(wParam);
         switch (wmId)
         {
         case IDCANCEL:
