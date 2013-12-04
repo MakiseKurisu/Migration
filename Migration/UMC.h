@@ -1,10 +1,11 @@
-// Universal Mutant Closer's Header - UMC.h 
+﻿// Universal Mutant Closer's Header - UMC.h 
 // Created by Riatre(aka. 258921) @ 2010/08/13
 
 #pragma once
 
 #include <windows.h>
 #include <tlhelp32.h>
+#include <VersionHelpers.h>
 
 enum HOWTOCLOSE
 {
@@ -13,9 +14,9 @@ enum HOWTOCLOSE
     CLOSE_INJECT
 };
 
-typedef HOWTOCLOSE(*CLOSECALLBACK)(wchar_t* MutantName, ULONG NameLength);
+typedef HOWTOCLOSE(*CLOSECALLBACK)(LPCWSTR MutantName, ULONG NameLength);
 
-BYTE GetObjectTypeNumber(wchar_t* ObjectName);
+BYTE GetObjectTypeNumber(LPCWSTR ObjectName);
 BOOL RemoteCloseHandle(HANDLE hProcess, HANDLE hHandle);
 BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose);
 
@@ -26,4 +27,5 @@ HANDLE WINAPI OsCreateRemoteThread2(
     LPTHREAD_START_ROUTINE lpStartAddress,
     LPVOID lpParameter,
     DWORD dwCreationFlags,
-    LPDWORD lpThreadId);
+    LPDWORD lpThreadId
+    );

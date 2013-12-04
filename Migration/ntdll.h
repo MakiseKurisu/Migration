@@ -1,13 +1,12 @@
-// ∑¥’˝ «≥≠∂®“ÂµƒªÓ£¨œ¬±»À∏„∫√µƒ∫Õ◊‘º∫≥≠√ª…∂¡Ω—˘..
-// ≥≠◊‘http://undocumented.ntinternals.net/  °¢WRK“‘º∞WDK 7600.1°¢ReactOS
-// ΩˆΩˆ≥≠¡À√∂æŸæ‰±˙∫ÕZwDuplicateObjectπÿµÙ”√µ√◊≈µƒ∂®“Â
+Ôªø// ÂèçÊ≠£ÊòØÊäÑÂÆö‰πâÁöÑÊ¥ªÔºå‰∏ãÂà´‰∫∫ÊêûÂ•ΩÁöÑÂíåËá™Â∑±ÊäÑÊ≤°Âï•‰∏§Ê†∑..
+// ÊäÑËá™http://undocumented.ntinternals.net/„ÄÅWRK‰ª•ÂèäWDK 7600.1„ÄÅMSDN„ÄÅReactOS
+// ‰ªÖ‰ªÖÊäÑ‰∫ÜÊûö‰∏æÂè•ÊüÑÂíåZwDuplicateObjectÂÖ≥ÊéâÁî®ÂæóÁùÄÁöÑÂÆö‰πâ
 // This file is for Public Domain.
 
 #ifndef _CUSTOM_NTDLL_INCLUDED
 #define _CUSTOM_NTDLL_INCLUDED
 
 #include <windows.h>
-
 
 typedef /*__success(return >= 0)*/ LONG NTSTATUS;
 typedef NTSTATUS *PNTSTATUS;
@@ -302,7 +301,7 @@ typedef struct _PEB {
     PPEBLOCKROUTINE         FastPebLockRoutine;
     PPEBLOCKROUTINE         FastPebUnlockRoutine;
     ULONG                   EnvironmentUpdateCount;
-    VOID**                  KernelCallbackTable;
+    PVOID*                  KernelCallbackTable;
     PVOID                   EventLogSection;
     PVOID                   EventLog;
     PPEB_FREE_BLOCK         FreeList;
@@ -311,7 +310,7 @@ typedef struct _PEB {
     ULONG                   TlsBitmapBits[0x2];
     PVOID                   ReadOnlySharedMemoryBase;
     PVOID                   ReadOnlySharedMemoryHeap;
-    VOID**                  ReadOnlyStaticServerData;
+    PVOID*                  ReadOnlyStaticServerData;
     PVOID                   AnsiCodePageData;
     PVOID                   OemCodePageData;
     PVOID                   UnicodeCaseTableData;
@@ -325,7 +324,7 @@ typedef struct _PEB {
     ULONG                   HeapDeCommitFreeBlockThreshold;
     ULONG                   NumberOfHeaps;
     ULONG                   MaximumNumberOfHeaps;
-    VOID**                  *ProcessHeaps;
+    PVOID*                  *ProcessHeaps;
     PVOID                   GdiSharedHandleTable;
     PVOID                   ProcessStarterHelper;
     PVOID                   GdiDCAttributeList;
@@ -365,7 +364,7 @@ typedef struct _OBJECT_ATTRIBUTES
 
 #define DUPLICATE_SAME_ATTRIBUTES 0x4
 
-typedef enum _PROCESS_INFORMATION_CLASS {
+typedef enum _PROCESSINFOCLASS {
     ProcessBasicInformation,
     ProcessQuotaLimits,
     ProcessIoCounters,
@@ -389,14 +388,22 @@ typedef enum _PROCESS_INFORMATION_CLASS {
     ProcessHandleCount,
     ProcessAffinityMask,
     ProcessPriorityBoost,
+    ProcessUnknown23,
+    ProcessUnknown24,
+    ProcessUnknown25,
+    ProcessWow64Information,
+    ProcessImageFileName,
+    ProcessUnknown28,
+    ProcessBreakOnTermination,
     MaxProcessInfoClass
-} PROCESS_INFORMATION_CLASS, *PPROCESS_INFORMATION_CLASS;
+
+} PROCESSINFOCLASS, *PPROCESSINFOCLASS;
 
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation(IN SYSTEM_INFORMATION_CLASS SystemInformationClass, OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryObject(IN HANDLE ObjectHandle, IN OBJECT_INFORMATION_CLASS ObjectInformationClass, OUT PVOID ObjectInformation, IN ULONG Length, OUT PULONG ResultLength);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwDuplicateObject(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
 extern "C" NTSYSAPI NTSTATUS NTAPI NtOpenProcess(OUT PHANDLE ProcessHandle, IN ACCESS_MASK AccessMask, IN POBJECT_ATTRIBUTES ObjectAttributes, IN PCLIENT_ID ClientId);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess(IN HANDLE ProcessHandle, IN PROCESS_INFORMATION_CLASS ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength);
+extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess(IN HANDLE ProcessHandle, IN PROCESSINFOCLASS ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength);
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwClose(IN HANDLE ObjectHandle);
 
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwAllocateVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __in ULONG_PTR ZeroBits, __inout PSIZE_T RegionSize, __in ULONG AllocationType, __in ULONG Protect);

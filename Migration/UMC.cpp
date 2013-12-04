@@ -1,16 +1,16 @@
-// Universal Mutant Closer's Implementation - UMC.cpp
+Ôªø// Universal Mutant Closer's Implementation - UMC.cpp
 // Created by Riatre(aka. 258921) @ 2010/08/13
 // Need to refact,really,really. 
 
-#include "UMC.h"
 #include "ntdll.h"
-
 #pragma comment(lib,"ntdll.lib")
+
+#include "UMC.h"
 
 USHORT ProcessTypeNumber = 0xFFFF;
 USHORT MutantTypeNumber = 0xFFFF;
 
-// ŒﬁΩ⁄≥≠£°
+// Êó†ËäÇÊäÑÔºÅ
 HANDLE WINAPI OsCreateRemoteThread2(
     HANDLE hProcess,
     LPSECURITY_ATTRIBUTES lpThreadAttributes,
@@ -42,32 +42,32 @@ HANDLE WINAPI OsCreateRemoteThread2(
         '\x8B', '\xEC',
         //   00830005    51              push    ecx   //ntdll.RtlExitUserThread
         '\x51',
-        //   00830006    53              push    ebx   //≤Œ ˝
+        //   00830006    53              push    ebx   //ÂèÇÊï∞
         '\x53',
-        //   00830007    FFD0            call    eax   //∫Ø ˝µÿ÷∑
+        //   00830007    FFD0            call    eax   //ÂáΩÊï∞Âú∞ÂùÄ
         '\xFF', '\xD0',
-        //   00830009    59              pop     ecx   //ª÷∏¥Ω· ¯∫Ø ˝µÿ÷∑
+        //   00830009    59              pop     ecx   //ÊÅ¢Â§çÁªìÊùüÂáΩÊï∞Âú∞ÂùÄ
         '\x59',
-        //   0083000A    50              push    eax   //Ω´∏’≤≈µƒΩ·π˚—π’ª
+        //   0083000A    50              push    eax   //Â∞ÜÂàöÊâçÁöÑÁªìÊûúÂéãÊ†à
         '\x50',
-        //   0083000B    FFD1            call    ecx   //µ˜”√RtlExitUserThread Ω· ¯
+        //   0083000B    FFD1            call    ecx   //Ë∞ÉÁî®RtlExitUserThread ÁªìÊùü
         '\xFF', '\xD1',
         //   0083000D    90              nop
         '\x90'
     };
-    PVOID  pBaseThreadThunk = NULL; //≤ªƒ‹ Õ∑≈
+    PVOID  pBaseThreadThunk = NULL; //‰∏çËÉΩÈáäÊîæ
 
-    //0°¢∑÷≈‰∑«OSµƒº”‘ÿ∫Ø ˝
+    //0„ÄÅÂàÜÈÖçÈùûOSÁöÑÂä†ËΩΩÂáΩÊï∞
     StackReserve = 0x1000;
     ret = ZwAllocateVirtualMemory(hProcess,
-        /*&stack.ExpandableStackBottom*/(PVOID*) &pBaseThreadThunk,
+        /*&stack.ExpandableStackBottom*/(LPVOID*) &pBaseThreadThunk,
         0,
         &StackReserve,
         MEM_COMMIT,
         PAGE_EXECUTE_READWRITE);
     if (!(NT_SUCCESS(ret)))
     {
-        // ß∞‹
+        //Â§±Ë¥•
         goto OsCreateRemoteThread2Ret;
         //end
     }
@@ -77,23 +77,23 @@ HANDLE WINAPI OsCreateRemoteThread2(
         sizeof(myBaseThreadInitThunk), &x);
     if (!(NT_SUCCESS(ret)))
     {
-        // ß∞‹
+        //Â§±Ë¥•
         goto OsCreateRemoteThread2Ret;
         //end
     }
     cid.UniqueProcess = hProcess;
 
-    //1°¢◊º±∏∂—’ª
+    //1„ÄÅÂáÜÂ§áÂ†ÜÊ†à
     StackReserve = 0x10000;
     ret = ZwAllocateVirtualMemory(hProcess,
-        /*&stack.ExpandableStackBottom*/(PVOID*) &Stack,
+        /*&stack.ExpandableStackBottom*/(LPVOID*) &Stack,
         0,
         &StackReserve,
         MEM_RESERVE,
         PAGE_READWRITE);
     if (!(NT_SUCCESS(ret)))
     {
-        // ß∞‹
+        //Â§±Ë¥•
         goto OsCreateRemoteThread2Ret;
         //end
     }
@@ -109,41 +109,41 @@ HANDLE WINAPI OsCreateRemoteThread2(
 
     /* Allocate memory for the stack */
     ret = ZwAllocateVirtualMemory(hProcess,
-        (PVOID*) &Stack,
+        (LPVOID*) &Stack,
         0,
         &StackCommit,
         MEM_COMMIT,
         PAGE_READWRITE);
     if (!(NT_SUCCESS(ret)))
     {
-        // ß∞‹
+        //Â§±Ë¥•
         goto OsCreateRemoteThread2Ret;
         //end
     }
-    InitialTeb.StackLimit = (PVOID) Stack;
+    InitialTeb.StackLimit = (LPVOID) Stack;
 
     StackReserve = 0x1000;
-    ret = ZwProtectVirtualMemory(hProcess, (PVOID*) &Stack, &StackReserve, PAGE_READWRITE | PAGE_GUARD, &x);
+    ret = ZwProtectVirtualMemory(hProcess, (LPVOID*) &Stack, &StackReserve, PAGE_READWRITE | PAGE_GUARD, &x);
     if (!(NT_SUCCESS(ret)))
     {
-        // ß∞‹
+        //Â§±Ë¥•
         goto OsCreateRemoteThread2Ret;
         //end
     }
     /* Update the Stack Limit keeping in mind the Guard Page */
     InitialTeb.StackLimit = (PVOID) ((ULONG_PTR) InitialTeb.StackLimit - 0x1000);
-    //2°¢◊º±∏CONTEXT
+    //2„ÄÅÂáÜÂ§áCONTEXT
     //  CONTEXT context = {CONTEXT_FULL}; 
     ret = ZwGetContextThread(GetCurrentThread(), &context);
     if (!(NT_SUCCESS(ret)))
     {
-        // ß∞‹
+        //Â§±Ë¥•
         goto OsCreateRemoteThread2Ret;
         //end
     }
 #ifdef _WIN64
     context.Rsp = (ULONG_PTR) InitialTeb.StackBase;
-    context.Rip = (ULONG_PTR) pBaseThreadThunk; //’‚¿ÔÃÓ–¥–Ë“™º”‘ÿµƒµÿ÷∑£¨≤ªπ˝–Ë“™◊‘º∫÷’Ω·◊‘º∫
+    context.Rip = (ULONG_PTR) pBaseThreadThunk; //ËøôÈáåÂ°´ÂÜôÈúÄË¶ÅÂä†ËΩΩÁöÑÂú∞ÂùÄÔºå‰∏çËøáÈúÄË¶ÅËá™Â∑±ÁªàÁªìËá™Â∑±
     context.Rbx = (ULONG_PTR) lpParameter;
     //other init
     //must
@@ -153,7 +153,7 @@ HANDLE WINAPI OsCreateRemoteThread2(
 #endif
 #ifndef _WIN64
     context.Esp = (ULONG_PTR) InitialTeb.StackBase;
-    context.Eip = (ULONG_PTR) pBaseThreadThunk; //’‚¿ÔÃÓ–¥–Ë“™º”‘ÿµƒµÿ÷∑£¨≤ªπ˝–Ë“™◊‘º∫÷’Ω·◊‘º∫
+    context.Eip = (ULONG_PTR) pBaseThreadThunk; //ËøôÈáåÂ°´ÂÜôÈúÄË¶ÅÂä†ËΩΩÁöÑÂú∞ÂùÄÔºå‰∏çËøáÈúÄË¶ÅËá™Â∑±ÁªàÁªìËá™Â∑±
     context.Ebx = (ULONG_PTR) lpParameter;
     //other init
     //must
@@ -164,7 +164,7 @@ HANDLE WINAPI OsCreateRemoteThread2(
     ret = ZwCreateThread(&hThread, THREAD_ALL_ACCESS, 0, hProcess, &cid, &context, &InitialTeb, TRUE);
     if (!(NT_SUCCESS(ret)))
     {
-        // ß∞‹
+        //Â§±Ë¥•
         goto OsCreateRemoteThread2Ret;
         //end
     }
@@ -180,9 +180,9 @@ OsCreateRemoteThread2Ret:
     return hThread;
 }
 
-BYTE GetObjectTypeNumber(wchar_t* ObjectName)
+BYTE GetObjectTypeNumber(LPCWSTR ObjectName)
 {
-    BYTE TypeNumber = -1;
+    BYTE TypeNumber = (BYTE) -1;
     ULONG cbReqLength;
     BYTE* OutBuffer = new BYTE[100];
     ZeroMemory(OutBuffer, 100);
@@ -193,7 +193,7 @@ BYTE GetObjectTypeNumber(wchar_t* ObjectName)
 
     OBJECT_TYPES_INFORMATION* Types = (OBJECT_TYPES_INFORMATION*) OutBuffer;
     OBJECT_TYPE_INFORMATION* Type = Types->ObjectTypeInformation;
-    for (ULONG i = 0; i < Types->NumberOfObjectsTypes; i++)
+    for (BYTE i = 0; i < Types->NumberOfObjectsTypes; i++)
     {
         if (wcsncmp(Type->TypeName.Buffer, ObjectName,
             Type->TypeName.Length < wcslen(ObjectName) ? Type->TypeName.Length : wcslen(ObjectName)) == NULL)
@@ -210,9 +210,7 @@ BYTE GetObjectTypeNumber(wchar_t* ObjectName)
     if (TypeNumber != -1)
     {
         TypeNumber++; // "Number" begins from 1.
-        DWORD Version = GetVersion();
-        DWORD BuildNumber = HIWORD(Version);
-        if (BuildNumber >= 7000)
+        if (IsWindows7OrGreater())
         {
             // Windows 7 Fix, Don't ask me why but it works.
             TypeNumber++;
@@ -233,7 +231,7 @@ BOOL RemoteCloseHandle(HANDLE hProcess, HANDLE hHandle)
 
 BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHandle)
 {
-    // x64≤ª  ”√£°£®øº¬«µΩ“™≤Â»ÎµƒΩ¯≥Ã «‘≠…˙x64£¨ø÷≈¬..£©
+    // x64‰∏çÈÄÇÁî®ÔºÅÔºàËÄÉËôëÂà∞Ë¶ÅÊèíÂÖ•ÁöÑËøõÁ®ãÊòØÂéüÁîüx64ÔºåÊÅêÊÄï..Ôºâ
     BYTE CloseCode [] = {
         /*push DUPLICATE_CLOSE_SOURCE*/
         0x6A, 0x01,
@@ -269,7 +267,7 @@ BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHan
     CHAR* pszRemoteBuf = NULL;
     LPTHREAD_START_ROUTINE lpThreadFun = NULL;
 
-    hInjectProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, TargetProcessId); // ≤ªπªWS£¨≤ªπ˝πª¡À~
+    hInjectProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, TargetProcessId); // ‰∏çÂ§üWSÔºå‰∏çËøáÂ§ü‰∫Ü~
     if (NULL == hInjectProcess)
     {
         return FALSE;
@@ -282,8 +280,8 @@ BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHan
     *(HANDLE*) (CloseCode + 11) = hHandle;
     *(HANDLE*) (CloseCode + 16) = TarhProcess;
     *(HANDLE*) (CloseCode + 28) = TarhProcess;
-    *(void**) (CloseCode + 33) = (void*) ZwClose;
-    *(void**) (CloseCode + 21) = (void*) ZwDuplicateObject;
+    *(LPVOID*) (CloseCode + 33) = (LPVOID) ZwClose;
+    *(LPVOID*) (CloseCode + 21) = (LPVOID) ZwDuplicateObject;
 
     if (NULL == pszRemoteBuf)
     {
@@ -339,7 +337,7 @@ BOOL InjectRemoteCloseHandle(HANDLE hProcess, HANDLE hHandle)
     {
         do
         {
-            if (wcsicmp(pe32.szExeFile, L"svchost.exe") == NULL)
+            if (lstrcmp(pe32.szExeFile, L"svchost.exe") == NULL)
             {
                 MyTar = pe32.th32ProcessID;
                 break;
@@ -456,7 +454,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
     SYSTEM_HANDLE_INFORMATION_EX* HandleInformation = (SYSTEM_HANDLE_INFORMATION_EX*) OutBuffer;
     for (ULONG i = 0; i < HandleInformation->NumberOfHandles; i++)
     {
-        // À—À˜≥ˆ“ª∏ˆMutantTypeNumber£¨±»…œ√ÊµƒGetObjectTypeNumberø…øø
+        // ÊêúÁ¥¢Âá∫‰∏Ä‰∏™MutantTypeNumberÔºåÊØî‰∏äÈù¢ÁöÑGetObjectTypeNumberÂèØÈù†
         if (MutantTypeNumber == 0xFFFF)
         {
             HANDLE hProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, (DWORD) HandleInformation->Handles[i].UniqueProcessId);
