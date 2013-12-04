@@ -1,24 +1,23 @@
-// Thunderneko.cpp : ¶¨Òå DLL Ó¦ÓÃ³ÌĞòµÄµ¼³öº¯Êı¡£
+ï»¿// Thunderneko.cpp : å®šä¹‰ DLL åº”ç”¨ç¨‹åºçš„å¯¼å‡ºå‡½æ•°ã€‚
 //
 
 #include <stdio.h>
 #include <Windows.h>
 #include "Thunderneko.h"
-#include "..\Migration\UMC.h"
+#include "..\Share\UMC.h"
 
-wchar_t DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
-wchar_t DNFLauncherMutantName [] = L"NeopleLauncher";
+WCHAR DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
+WCHAR DNFLauncherMutantName [] = L"NeopleLauncher";
 
 int FoundCount = 0;
 
-HOWTOCLOSE IdentifyDNFMutant(wchar_t* MutantName, ULONG NameLength)
+HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
     if (NameLength < 30)
         return DONT_CLOSE;
 
-    wchar_t* RevName = new wchar_t[NameLength + 1];
-    wcsncpy(RevName, MutantName, NameLength);
-    wcsrev(RevName);
+    LPWSTR RevName = new WCHAR[NameLength + 1];
+    lstrcpyn(RevName, MutantName, NameLength);
     if (wcsncmp(RevName, DNFMutantName, 30) == NULL || wcsncmp(RevName, DNFLauncherMutantName, 14) == NULL)
     {
         delete [] RevName;
@@ -29,7 +28,7 @@ HOWTOCLOSE IdentifyDNFMutant(wchar_t* MutantName, ULONG NameLength)
     return DONT_CLOSE;
 }
 
-int __stdcall MoeMoeSorayuki(void* Useless)
+int __stdcall MoeMoeSorayuki(LPVOID Useless)
 {
     FoundCount = 0;
     if (!EnumerateAndCloseMutant(IdentifyDNFMutant))
@@ -39,8 +38,7 @@ int __stdcall MoeMoeSorayuki(void* Useless)
     return FoundCount;
 }
 
-int __stdcall MoeMoeAndExit(void* Useless)
+VOID __stdcall MoeMoeAndExit(LPVOID Useless)
 {
     FreeLibraryAndExitThread(hMyModule, MoeMoeSorayuki(NULL));
-    return 0;
 }

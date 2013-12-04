@@ -1,9 +1,9 @@
-// dllmain.cpp : ¶¨Òå DLL Ó¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
+ï»¿// dllmain.cpp : å®šä¹‰ DLL åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 #include <Windows.h>
 #include "Thunderneko.h"
 
 // For dirty XP Hack...
-// ±ğÍÂ²ÛÊµÏÖÔàÁË£¬Õâ¸ù±¾¾ÍÊÇ¼Æ»®ÍâµÄÊÂ
+// åˆ«åæ§½å®ç°è„äº†ï¼Œè¿™æ ¹æœ¬å°±æ˜¯è®¡åˆ’å¤–çš„äº‹
 
 HMODULE hMyModule = NULL;
 
@@ -15,8 +15,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        wcsrev(DNFMutantName);
-        wcsrev(DNFLauncherMutantName);
         hMyModule = hModule;
         break;
     case DLL_THREAD_ATTACH:

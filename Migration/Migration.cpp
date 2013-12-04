@@ -1,21 +1,21 @@
-// Migration.cpp : ¶¨ÒåÓ¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
+ï»¿// Migration.cpp : å®šä¹‰åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 //
 
 #include <Windows.h>
 #include <CommCtrl.h>
 #include <tlhelp32.h>
-#include "resource.h"
-#include "UMC.h"
+#include "..\Share\UMC.h"
+#include "Resource.h"
 #include "Migration.h"
 
-wchar_t DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
-wchar_t DNFLauncherMutantName [] = L"NeopleLauncher";
+WCHAR DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
+WCHAR DNFLauncherMutantName[] = L"NeopleLauncher";
 int FoundCount = 0;
 BOOL RunningOnX86 = TRUE;
 
 HWND hMainWindow = NULL;
 
-// ¼ì²âÊÇ·ñÊÇ64Î»²Ù×÷ÏµÍ³£¬x64·µ»Ø1£¬x86·µ»Ø0£¬·ñÔò·µ»Ø2
+// æ£€æµ‹æ˜¯å¦æ˜¯64ä½æ“ä½œç³»ç»Ÿï¼Œx64è¿”å›1ï¼Œx86è¿”å›0ï¼Œå¦åˆ™è¿”å›2
 int Is64bitWindows()
 {
     GNSITYPE GetNativeSystemInfo = (GNSITYPE) GetProcAddress(GetModuleHandle(L"kernel32.dll"), "GetNativeSystemInfo");
@@ -53,14 +53,13 @@ BOOL AdjustPrivilege(BOOL bEnable)
     return FALSE;
 }
 
-HOWTOCLOSE IdentifyDNFMutant(wchar_t* MutantName, ULONG NameLength)
+HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
     if (NameLength < 30)
         return DONT_CLOSE;
 
-    wchar_t* RevName = new wchar_t[NameLength + 1];
-    wcsncpy(RevName, MutantName, NameLength);
-    wcsrev(RevName);
+    LPWSTR RevName = new WCHAR[NameLength + 1];
+    lstrcpyn(RevName, MutantName, NameLength);
     if (wcsncmp(RevName, DNFMutantName, 30) == NULL)
     {
         delete [] RevName;
@@ -91,9 +90,9 @@ BOOL ShowHideAllDnf(BOOL bShow)
         Migration = hMainWindow;
     }
     HWND hWnd = NULL;
-    while (true)
+    for (;;)
     {
-        hWnd = FindWindowEx(EvilParent, NULL, L"µØÏÂ³ÇÓëÓÂÊ¿", L"µØÏÂ³ÇÓëÓÂÊ¿");
+        hWnd = FindWindowEx(EvilParent, NULL, L"åœ°ä¸‹åŸä¸å‹‡å£«", L"åœ°ä¸‹åŸä¸å‹‡å£«");
 
         if (hWnd == NULL) break;
         if (bShow)
@@ -112,7 +111,7 @@ void FuckJunkProcess()
     HANDLE hProcessSnap = NULL;
     PROCESSENTRY32 pe32 = { 0 };
     hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    ULONG_PTR PidCollect[16] = { 0 };
+    DWORD PidCollect[16] = { 0 };
     ULONG_PTR Collected = 0;
     int DNFCount = 0;
 
@@ -121,11 +120,11 @@ void FuckJunkProcess()
     {
         do
         {
-            if (wcsicmp(pe32.szExeFile, L"qqlogin.exe") == NULL || wcsicmp(pe32.szExeFile, L"QQDL.exe") == NULL || wcsicmp(pe32.szExeFile, L"TenSafe.exe") == NULL)
+            if (lstrcmpi(pe32.szExeFile, L"qqlogin.exe") == NULL || lstrcmpi(pe32.szExeFile, L"QQDL.exe") == NULL || lstrcmpi(pe32.szExeFile, L"TenSafe.exe") == NULL)
             {
                 PidCollect[Collected++] = pe32.th32ProcessID;
             }
-            else if (wcsicmp(pe32.szExeFile, L"dnf.exe") == NULL)
+            else if (lstrcmpi(pe32.szExeFile, L"dnf.exe") == NULL)
             {
                 DNFCount++;
             }
@@ -144,12 +143,12 @@ void FuckJunkProcess()
     }
 }
 
-int InjectDllAndRunFunc(wchar_t* pszDllFile, DWORD dwProcessId, DWORD FuncOffset)
+int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset)
 {
     HANDLE hProcess = NULL;
     HANDLE hThread = NULL;
     DWORD dwSize = 0;
-    CHAR* pszRemoteBuf = NULL;
+    LPSTR pszRemoteBuf = NULL;
     LPTHREAD_START_ROUTINE lpThreadFun = NULL;
 
     hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, dwProcessId);
@@ -159,7 +158,7 @@ int InjectDllAndRunFunc(wchar_t* pszDllFile, DWORD dwProcessId, DWORD FuncOffset
     }
 
     dwSize = (DWORD) ((wcslen(pszDllFile) + 1) * 2);
-    pszRemoteBuf = (CHAR*) VirtualAllocEx(hProcess, NULL, dwSize, MEM_COMMIT, PAGE_READWRITE);
+    pszRemoteBuf = (LPSTR) VirtualAllocEx(hProcess, NULL, dwSize, MEM_COMMIT, PAGE_READWRITE);
     if (NULL == pszRemoteBuf)
     {
         CloseHandle(hProcess);
@@ -198,7 +197,7 @@ int InjectDllAndRunFunc(wchar_t* pszDllFile, DWORD dwProcessId, DWORD FuncOffset
     VirtualFreeEx(hProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
     CloseHandle(hThread);
 
-    lpThreadFun = (LPTHREAD_START_ROUTINE) ((BYTE*) hDLLModule + FuncOffset);
+    lpThreadFun = (LPTHREAD_START_ROUTINE) ((SIZE_T) hDLLModule + FuncOffset);
 
     hThread = CreateRemoteThread(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
     if (NULL == hThread) hThread = OsCreateRemoteThread2(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
@@ -224,12 +223,12 @@ int InjectEnumerateAndCloseMutant()
     if (hThunderNeko == NULL)
         return -1;
 
-    void* FuncAddress = GetProcAddress(hThunderNeko, "MoeMoeAndExit");
+    LPVOID FuncAddress = GetProcAddress(hThunderNeko, "MoeMoeAndExit");
     if (FuncAddress == NULL)
         return -1;
 
-    wchar_t FullPath[MAX_PATH * 2];
-    DWORD FuncOffset = (BYTE*) FuncAddress - (BYTE*) hThunderNeko;
+    WCHAR FullPath[MAX_PATH * 2];
+    SIZE_T FuncOffset = (LPBYTE) FuncAddress - (LPBYTE) hThunderNeko;
     GetModuleFileName(hThunderNeko, FullPath, MAX_PATH * 2);
     FreeLibrary(hThunderNeko);
 
@@ -243,7 +242,7 @@ int InjectEnumerateAndCloseMutant()
     {
         do
         {
-            if (wcsicmp(pe32.szExeFile, L"svchost.exe") == NULL)
+            if (lstrcmpi(pe32.szExeFile, L"svchost.exe") == NULL)
             {
                 MyTar = pe32.th32ProcessID;
                 break;
@@ -266,7 +265,7 @@ INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         hMainWindow = hWnd;
 #ifdef _WIN64
         {
-            wchar_t WindowTitle[200] = { 0 };
+            WCHAR WindowTitle[200] = { 0 };
             GetWindowText(hWnd, WindowTitle, 200);
             wcscat_s(WindowTitle, L" (x64)");
             SetWindowText(hWnd, WindowTitle);
@@ -284,18 +283,17 @@ INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case IDC_CLOSEHANDLE:
         {
 #ifndef _WIN64
-                                DWORD dwMajorVersion = (DWORD) (LOBYTE(LOWORD(GetVersion())));
-                                if (dwMajorVersion < 6 && RunningOnX86)
+                                if (!IsWindowsVistaOrGreater() && RunningOnX86)
                                 {
-                                    // ÕâÄêÍ·ÓÃXPµÄÃ»ÈËÈ¨
+                                    // è¿™å¹´å¤´ç”¨XPçš„æ²¡äººæƒ
                                     FoundCount = InjectEnumerateAndCloseMutant();
                                     if (FoundCount == -1)
                                     {
-                                        MessageBox(hWnd, L"ÄúÕıÔÚÊ¹ÓÃµÄWindows²Ù×÷ÏµÍ³°æ±¾Ğ¡ÓÚWindows Vista£¬Òò´Ë³ÌĞòĞèÒªThunderNeko.dll·ÅÖÃÔÚ±¾³ÌĞòÄ¿Â¼ÏÂ²ÅÄÜÕı³£¹¤×÷¡£\n\nµ«ÊÇÄúµÄThunderNeko.dllºÜ¿ÉÄÜËğ»µ»ò²»´æÔÚ¡£", L"ÕâÄêÍ·ÓÃXPµÄÃ»ÈËÈ¨", MB_ICONINFORMATION | MB_OK);
+                                        MessageBox(hWnd, L"æ‚¨æ­£åœ¨ä½¿ç”¨çš„Windowsæ“ä½œç³»ç»Ÿç‰ˆæœ¬å°äºWindows Vistaï¼Œå› æ­¤ç¨‹åºéœ€è¦ThunderNeko.dllæ”¾ç½®åœ¨æœ¬ç¨‹åºç›®å½•ä¸‹æ‰èƒ½æ­£å¸¸å·¥ä½œã€‚\n\nä½†æ˜¯æ‚¨çš„ThunderNeko.dllå¾ˆå¯èƒ½æŸåæˆ–ä¸å­˜åœ¨ã€‚", L"è¿™å¹´å¤´ç”¨XPçš„æ²¡äººæƒ", MB_ICONINFORMATION | MB_OK);
                                     }
                                     if (FoundCount == -2)
                                     {
-                                        MessageBox(hWnd, L"²åÈëÊ§°Ü...", L"...", MB_ICONSTOP | MB_OK);
+                                        MessageBox(hWnd, L"æ’å…¥å¤±è´¥...", L"...", MB_ICONSTOP | MB_OK);
                                     }
                                 }
                                 else
@@ -304,21 +302,21 @@ INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                                     FoundCount = 0;
                                     if (!EnumerateAndCloseMutant(IdentifyDNFMutant))
                                     {
-                                        MessageBox(hWnd, L"¾ä±ú¶ÔÏóÃ¶¾ÙÖĞ³öÏÖÁËÒ»Ğ©ÎÊÌâ£¬ÊÇÈ¨ÏŞ²»¹»Âğ£¿\n\nÈç¹ûÄúÊ¹ÓÃµÄ²Ù×÷ÏµÍ³ÊÇWindows XP/2003 x64 Edition£¬ÇëÎñ±ØÏÂÔØx64°æ±¾Ê¹ÓÃ£¬¿ÉÄÜ¿ÉÒÔ½â¾öÕâ¸öÎÊÌâ¡£", L"´íÎó", MB_ICONSTOP | MB_OK);
+                                        MessageBox(hWnd, L"å¥æŸ„å¯¹è±¡æšä¸¾ä¸­å‡ºç°äº†ä¸€äº›é—®é¢˜ï¼Œæ˜¯æƒé™ä¸å¤Ÿå—ï¼Ÿ\n\nå¦‚æœæ‚¨ä½¿ç”¨çš„æ“ä½œç³»ç»Ÿæ˜¯Windows XP/2003 x64 Editionï¼Œè¯·åŠ¡å¿…ä¸‹è½½x64ç‰ˆæœ¬ä½¿ç”¨ï¼Œå¯èƒ½å¯ä»¥è§£å†³è¿™ä¸ªé—®é¢˜ã€‚", L"é”™è¯¯", MB_ICONSTOP | MB_OK);
                                         break;
                                     }
                                 }
                                 if (FoundCount == 0)
                                 {
-                                    MessageBox(hWnd, L"ÔÛ¸ù±¾¾ÍÃ»ÕÒµ½ÈË...", L"´íÎó", MB_OK | MB_ICONSTOP);
+                                    MessageBox(hWnd, L"å’±æ ¹æœ¬å°±æ²¡æ‰¾åˆ°äºº...", L"é”™è¯¯", MB_OK | MB_ICONSTOP);
                                 }
                                 else if (FoundCount > 1)
                                 {
-                                    MessageBox(hWnd, L"ËµÕæµÄ£¬ÎÒ×îÌÖÑá¶àPÁË..", L"³É¹¦", MB_OK | MB_ICONINFORMATION);
+                                    MessageBox(hWnd, L"è¯´çœŸçš„ï¼Œæˆ‘æœ€è®¨åŒå¤šPäº†..", L"æˆåŠŸ", MB_OK | MB_ICONINFORMATION);
                                 }
                                 else if (FoundCount == 1)
                                 {
-                                    MessageBox(hWnd, L"ßÀ£¬¾ÍÒ»·¢£¬¾ÍÒ»·¢¡£", L"Íê³É", MB_OK | MB_ICONINFORMATION);
+                                    MessageBox(hWnd, L"å‘ƒï¼Œå°±ä¸€å‘ï¼Œå°±ä¸€å‘ã€‚", L"å®Œæˆ", MB_OK | MB_ICONINFORMATION);
                                 }
                                 break;
         }
@@ -343,11 +341,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     LPWSTR    lpCmdLine,
     int       nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
     if (!AdjustPrivilege(TRUE))
     {
-        MessageBox(NULL, L"ÎŞ·¨È¡µÃµ÷½ÌÈ¨ÏŞ¡£\n\nÇëÊ¹ÓÃ¹ÜÀíÔ±È¨ÏŞÔËĞĞ±¾³ÌĞò¡£", L"´íÎó", MB_ICONSTOP | MB_OK);
+        MessageBox(NULL, L"æ— æ³•å–å¾—è°ƒæ•™æƒé™ã€‚\n\nè¯·ä½¿ç”¨ç®¡ç†å‘˜æƒé™è¿è¡Œæœ¬ç¨‹åºã€‚", L"é”™è¯¯", MB_ICONSTOP | MB_OK);
         return 0;
     }
 
@@ -357,12 +353,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     {
         RunningOnX86 = FALSE;
 #ifndef _WIN64
-        MessageBox(NULL, L"Äúµ±Ç°ÕıÔÚÒ»¸ö64Î»°æ±¾WindowsÉÏÊ¹ÓÃ±¾³ÌĞòµÄ32Î»°æ±¾£¬ÕâÓĞ¿ÉÄÜÔì³É±¾³ÌĞò¹¤×÷²»Õı³££¬Çë¾¡Á¿»ñÈ¡Ò»·İMigration_x64.exeÀ´Ê¹ÓÃ¡£", L"ÌáÊ¾", MB_OK | MB_ICONINFORMATION);
+        MessageBox(NULL, L"æ‚¨å½“å‰æ­£åœ¨ä¸€ä¸ª64ä½ç‰ˆæœ¬Windowsä¸Šä½¿ç”¨æœ¬ç¨‹åºçš„32ä½ç‰ˆæœ¬ï¼Œè¿™æœ‰å¯èƒ½é€ æˆæœ¬ç¨‹åºå·¥ä½œä¸æ­£å¸¸ï¼Œè¯·å°½é‡è·å–ä¸€ä»½Migration_x64.exeæ¥ä½¿ç”¨ã€‚", L"æç¤º", MB_OK | MB_ICONINFORMATION);
 #endif
     }
 
-    wcsrev(DNFMutantName);
-    wcsrev(DNFLauncherMutantName);
-
-    return DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAINDLG), NULL, WndProc);
+    return (int) DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAINDLG), NULL, WndProc);
 }

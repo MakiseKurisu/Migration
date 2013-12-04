@@ -1,4 +1,4 @@
-LIBRARY "ThunderNeko.dll"
+﻿LIBRARY "ThunderNeko.dll"
 EXPORTS
 	MoeMoeAndExit
 	MoeMoeSorayuki
