@@ -14,7 +14,7 @@ typedef enum _HOWTOCLOSE
     CLOSE_INJECT
 } HOWTOCLOSE, *LPHOWTOCLOSE;
 
-typedef HOWTOCLOSE (*CLOSECALLBACK)(LPCWSTR MutantName);
+typedef HOWTOCLOSE (*CLOSECALLBACK)(LPCWSTR MutantName, ULONG NameLength);
 
 BYTE GetObjectTypeNumber(LPCWSTR ObjectName);
 BOOL RemoteCloseHandle(HANDLE hProcess, HANDLE hHandle);

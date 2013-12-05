@@ -12,9 +12,18 @@ WCHAR DNFLauncherMutantName [] = L"NeopleLauncher";
 
 int FoundCount = 0;
 
-HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName)
+HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
-    if (!lstrcmp(MutantName, DNFMutantName) || !lstrcmp(MutantName, DNFIPCMutantName) || !lstrcmp(MutantName, DNFLauncherMutantName))
+    ULONG nDNFMutantName = sizeof(DNFMutantName) / sizeof(DNFMutantName[0]) - 1;
+    ULONG nDNFIPCMutantName = sizeof(DNFIPCMutantName) / sizeof(DNFIPCMutantName[0]) - 1;
+    ULONG nDNFLauncherMutantName = sizeof(DNFLauncherMutantName) / sizeof(DNFLauncherMutantName[0]) - 1;
+
+    if (NameLength < 15)
+    {
+        return DONT_CLOSE;
+    }
+
+    if (!wcsncmp(MutantName, DNFMutantName, nDNFMutantName) || !wcsncmp(MutantName, DNFIPCMutantName, nDNFIPCMutantName) || !wcsncmp(MutantName, DNFLauncherMutantName, nDNFLauncherMutantName))
     {
         FoundCount++;
         return CLOSE_DIRECT;

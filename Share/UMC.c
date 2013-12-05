@@ -513,9 +513,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
                 RtlZeroMemory(NameInfo, obi.NameInformationLength * 2);
                 Status = ZwQueryObject(hObject, ObjectNameInformation, NameInfo, obi.NameInformationLength * 2, NULL);
 
-                LPWSTR uszName = (LPWSTR) GlobalAlloc(GPTR, sizeof(WCHAR) * (NameInfo->Name.Length + 1));
-                RtlMoveMemory(uszName, NameInfo->Name.Buffer, sizeof(WCHAR) * NameInfo->Name.Length);
-                switch (ShouldClose(uszName))
+                switch (ShouldClose(NameInfo->Name.Buffer, NameInfo->Name.Length))
                 {
                 case CLOSE_DIRECT:
                 {
@@ -531,8 +529,9 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
                                      InjectRemoteCloseHandleByName(L"svchost.exe", hProcess, HandleInformation->Handles[i].HandleValue);
                                      break;
                 }
+                default:
+                    break;
                 }
-                GlobalFree(uszName);
             }
 
             if (TypeInfo)
