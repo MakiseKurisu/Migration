@@ -4,6 +4,13 @@
 //#include <resource.h>
 #include "Resource.h"
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Manifest resources
+//
+1                    RT_MANIFEST    "manifest.xml"
+
+
 #pragma code_page(65001)
 
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED

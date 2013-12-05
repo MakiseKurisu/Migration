@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 #include <Windows.h>
-#include "Thunderneko.h"
 #include "..\Share\UMC.h"
 
+HMODULE hMyModule = NULL;
 WCHAR DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
 WCHAR DNFLauncherMutantName [] = L"NeopleLauncher";
 
@@ -13,20 +13,20 @@ int FoundCount = 0;
 
 HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
-    if (NameLength < 30)
+    ULONG nDNFMutantName = sizeof(DNFMutantName) / sizeof(DNFMutantName[0]) - 1;
+    ULONG nDNFLauncherMutantName = sizeof(DNFLauncherMutantName) / sizeof(DNFLauncherMutantName[0]) - 1;
+    ULONG nMaxLength = (sizeof(DNFMutantName) > sizeof(DNFLauncherMutantName)) ? nDNFMutantName : nDNFLauncherMutantName;
+
+    if (NameLength < nMaxLength)
     {
         return DONT_CLOSE;
     }
 
-    LPWSTR RevName = (LPWSTR) GlobalAlloc(GPTR, sizeof(WCHAR) * (NameLength + 1));
-    lstrcpyn(RevName, MutantName, NameLength);
-    if (!wcsncmp(RevName, DNFMutantName, 30) || !wcsncmp(RevName, DNFLauncherMutantName, 14))
+    if (!wcsncmp(MutantName, DNFMutantName, nDNFMutantName) || !wcsncmp(MutantName, DNFLauncherMutantName, nDNFLauncherMutantName))
     {
-        GlobalFree(RevName);
         FoundCount++;
         return CLOSE_DIRECT;
     }
-    GlobalFree(RevName);
     return DONT_CLOSE;
 }
 
@@ -43,4 +43,23 @@ int __stdcall MoeMoeSorayuki(LPVOID Useless)
 VOID __stdcall MoeMoeAndExit(LPVOID Useless)
 {
     FreeLibraryAndExitThread(hMyModule, MoeMoeSorayuki(NULL));
+}
+
+BOOL APIENTRY DllMain(
+    HMODULE hModule,
+    DWORD ul_reason_for_call,
+    LPVOID lpReserved
+    )
+{
+    switch (ul_reason_for_call)
+    {
+    case DLL_PROCESS_ATTACH:
+        hMyModule = hModule;
+        break;
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
 }

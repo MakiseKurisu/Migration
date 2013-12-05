@@ -3,5 +3,6 @@
 *.lib
 *.exp
 *.aps
+*.vcxproj.user
 */Win32*
 */x64*

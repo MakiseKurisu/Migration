@@ -18,17 +18,11 @@
     <ClCompile Include="Thunderneko.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Share\UMC.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Thunderneko.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Share\UMC.h">
       <Filter>Header Files</Filter>
     </ClInclude>

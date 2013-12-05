@@ -3,8 +3,6 @@
 // Need to refact,really,really. 
 
 #include "ntdll.h"
-#pragma comment(lib,"ntdll.lib")
-
 #include "UMC.h"
 
 USHORT ProcessTypeNumber = 0xFFFF;

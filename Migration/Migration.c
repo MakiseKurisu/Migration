@@ -5,9 +5,9 @@
 #include <CommCtrl.h>
 #include <tlhelp32.h>
 #include "..\Share\UMC.h"
-#include "Resource.h"
-#include "Migration.h"
+#include "res\Resource.h"
 
+typedef VOID(WINAPI *GNSITYPE)(LPSYSTEM_INFO lpSystemInfo);
 WCHAR DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
 WCHAR DNFLauncherMutantName [] = L"NeopleLauncher";
 int FoundCount = 0;
@@ -16,26 +16,18 @@ BOOL RunningOnX86 = TRUE;
 HWND hMainWindow = NULL;
 
 // 检测是否是64位操作系统，x64返回1，x86返回0，否则返回2
-int Is64bitWindows()
+WORD GetProcessorArchitecture()
 {
     GNSITYPE GetNativeSystemInfo = (GNSITYPE) GetProcAddress(GetModuleHandle(L"kernel32.dll"), "GetNativeSystemInfo");
     if (!GetNativeSystemInfo)
     {
-        return 0;
+        return PROCESSOR_ARCHITECTURE_UNKNOWN;
     }
 
     SYSTEM_INFO si;
     RtlZeroMemory(&si, sizeof(si));
     GetNativeSystemInfo(&si);
-    switch (si.wProcessorArchitecture)
-    {
-    case PROCESSOR_ARCHITECTURE_INTEL:
-        return 0;
-    case PROCESSOR_ARCHITECTURE_AMD64:
-        return 1;
-    default:
-        return 2;
-    }
+    return si.wProcessorArchitecture;
 }
 
 BOOL AdjustPrivilege(BOOL bEnable)
@@ -65,16 +57,17 @@ BOOL AdjustPrivilege(BOOL bEnable)
 
 HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
-    if (NameLength < 30)
+    ULONG nDNFMutantName = sizeof(DNFMutantName) / sizeof(DNFMutantName[0]) - 1;
+    ULONG nDNFLauncherMutantName = sizeof(DNFLauncherMutantName) / sizeof(DNFLauncherMutantName[0]) - 1;
+    ULONG nMaxLength = (sizeof(DNFMutantName) > sizeof(DNFLauncherMutantName)) ? nDNFMutantName : nDNFLauncherMutantName;
+
+    if (NameLength < nMaxLength)
     {
         return DONT_CLOSE;
     }
 
-    LPWSTR RevName = (LPWSTR) GlobalAlloc(GPTR, sizeof(WCHAR) * (NameLength + 1));
-    lstrcpyn(RevName, MutantName, NameLength);
-    if (!wcsncmp(RevName, DNFMutantName, 30))
+    if (!wcsncmp(MutantName, DNFMutantName, nDNFMutantName))
     {
-        GlobalFree(RevName);
         FoundCount++;
 
         if (RunningOnX86)
@@ -86,13 +79,11 @@ HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
             return CLOSE_DIRECT;
         }
     }
-    else if (!wcsncmp(RevName, DNFLauncherMutantName, 14))
+    else if (!wcsncmp(MutantName, DNFLauncherMutantName, nDNFLauncherMutantName))
     {
-        GlobalFree(RevName);
         FoundCount++;
         return CLOSE_DIRECT;
     }
-    GlobalFree(RevName);
     return DONT_CLOSE;
 }
 
@@ -381,11 +372,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
     InitCommonControls();
 
-    if (Is64bitWindows() != 0)
+    if (GetProcessorArchitecture() != PROCESSOR_ARCHITECTURE_INTEL)
     {
         RunningOnX86 = FALSE;
 #ifndef _WIN64
-        MessageBox(NULL, L"您当前正在一个64位版本Windows上使用本程序的32位版本，这有可能造成本程序工作不正常，请尽量获取一份Migration_x64.exe来使用。", L"提示", MB_OK | MB_ICONINFORMATION);
+        MessageBox(NULL, L"您当前正在一个非32位版本Windows上使用本程序的32位版本，这有可能造成本程序工作不正常，请尽量获取一份原生版本的Migration.exe来使用。", L"提示", MB_OK | MB_ICONINFORMATION);
 #endif
     }
 
