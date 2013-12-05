@@ -72,7 +72,7 @@ HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 
     LPWSTR RevName = (LPWSTR) GlobalAlloc(GPTR, sizeof(WCHAR) * (NameLength + 1));
     lstrcpyn(RevName, MutantName, NameLength);
-    if (wcsncmp(RevName, DNFMutantName, 30) == NULL)
+    if (!wcsncmp(RevName, DNFMutantName, 30))
     {
         GlobalFree(RevName);
         FoundCount++;
@@ -86,7 +86,7 @@ HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
             return CLOSE_DIRECT;
         }
     }
-    else if (wcsncmp(RevName, DNFLauncherMutantName, 14) == NULL)
+    else if (!wcsncmp(RevName, DNFLauncherMutantName, 14))
     {
         GlobalFree(RevName);
         FoundCount++;
@@ -110,7 +110,7 @@ BOOL ShowHideAllDnf(BOOL bShow)
     for (;;)
     {
         hWnd = FindWindowEx(EvilParent, NULL, L"地下城与勇士", L"地下城与勇士");
-        if (hWnd == NULL)
+        if (!hWnd)
         {
             break;
         }
@@ -206,11 +206,11 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
     }
 
     hThread = CreateRemoteThread(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
-    if (NULL == hThread)
+    if (!hThread)
     {
         hThread = OsCreateRemoteThread2(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
     }
-    if (NULL == hThread)
+    if (!hThread)
     {
         VirtualFreeEx(hProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
         CloseHandle(hProcess);
@@ -227,11 +227,11 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
     lpThreadFun = (LPTHREAD_START_ROUTINE) ((SIZE_T) hDLLModule + FuncOffset);
 
     hThread = CreateRemoteThread(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
-    if (NULL == hThread)
+    if (!hThread)
     {
         hThread = OsCreateRemoteThread2(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
     }
-    if (NULL == hThread)
+    if (!hThread)
     {
         CloseHandle(hProcess);
         return -2;
@@ -249,19 +249,19 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
 int InjectEnumerateAndCloseMutant()
 {
     HMODULE hThunderNeko = LoadLibrary(L"ThunderNeko.dll");
-    if (hThunderNeko == NULL)
+    if (!hThunderNeko)
     {
         return -1;
     }
 
-    LPVOID FuncAddress = GetProcAddress(hThunderNeko, "MoeMoeAndExit");
-    if (FuncAddress == NULL)
+    FARPROC FuncAddress = GetProcAddress(hThunderNeko, "MoeMoeAndExit");
+    if (!FuncAddress)
     {
         return -1;
     }
 
     WCHAR FullPath[MAX_PATH * 2];
-    SIZE_T FuncOffset = (LPBYTE) FuncAddress - (LPBYTE) hThunderNeko;
+    SIZE_T FuncOffset = (SIZE_T) FuncAddress - (SIZE_T) hThunderNeko;
     GetModuleFileName(hThunderNeko, FullPath, MAX_PATH * 2);
     FreeLibrary(hThunderNeko);
 
@@ -275,7 +275,7 @@ int InjectEnumerateAndCloseMutant()
     {
         do
         {
-            if (lstrcmpi(pe32.szExeFile, L"svchost.exe") == NULL)
+            if (!lstrcmpi(pe32.szExeFile, L"svchost.exe"))
             {
                 MyTar = pe32.th32ProcessID;
                 break;
@@ -310,7 +310,7 @@ INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wmId)
         {
         case IDCANCEL:
-            EndDialog(hWnd, NULL);
+            EndDialog(hWnd, 0);
             break;
         case IDC_CLOSEHANDLE:
         {

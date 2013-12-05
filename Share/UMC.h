@@ -7,14 +7,14 @@
 #include <tlhelp32.h>
 #include <VersionHelpers.h>
 
-enum HOWTOCLOSE
+typedef enum _HOWTOCLOSE
 {
     DONT_CLOSE = 0,
     CLOSE_DIRECT,
     CLOSE_INJECT
-};
+} HOWTOCLOSE, *LPHOWTOCLOSE;
 
-typedef HOWTOCLOSE(*CLOSECALLBACK)(LPCWSTR MutantName, ULONG NameLength);
+typedef HOWTOCLOSE (*CLOSECALLBACK)(LPCWSTR MutantName, ULONG NameLength);
 
 BYTE GetObjectTypeNumber(LPCWSTR ObjectName);
 BOOL RemoteCloseHandle(HANDLE hProcess, HANDLE hHandle);

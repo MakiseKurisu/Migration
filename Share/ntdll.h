@@ -282,7 +282,7 @@ typedef struct _PEB_LDR_DATA {
 typedef void(*PPEBLOCKROUTINE)(PVOID PebLock);
 
 typedef struct _PEB_FREE_BLOCK {
-    _PEB_FREE_BLOCK* Next;
+    struct _PEB_FREE_BLOCK* Next;
     ULONG Size;
 } PEB_FREE_BLOCK, *PPEB_FREE_BLOCK;
 
@@ -399,17 +399,26 @@ typedef enum _PROCESSINFOCLASS {
 
 } PROCESSINFOCLASS, *PPROCESSINFOCLASS;
 
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation(IN SYSTEM_INFORMATION_CLASS SystemInformationClass, OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryObject(IN HANDLE ObjectHandle, IN OBJECT_INFORMATION_CLASS ObjectInformationClass, OUT PVOID ObjectInformation, IN ULONG Length, OUT PULONG ResultLength);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwDuplicateObject(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
-extern "C" NTSYSAPI NTSTATUS NTAPI NtOpenProcess(OUT PHANDLE ProcessHandle, IN ACCESS_MASK AccessMask, IN POBJECT_ATTRIBUTES ObjectAttributes, IN PCLIENT_ID ClientId);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess(IN HANDLE ProcessHandle, IN PROCESSINFOCLASS ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwClose(IN HANDLE ObjectHandle);
+#ifdef __cplusplus
+extern "C" {
+#endif
+NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation(IN SYSTEM_INFORMATION_CLASS SystemInformationClass, OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL);
+NTSYSAPI NTSTATUS NTAPI ZwQueryObject(IN HANDLE ObjectHandle, IN OBJECT_INFORMATION_CLASS ObjectInformationClass, OUT PVOID ObjectInformation, IN ULONG Length, OUT PULONG ResultLength);
+NTSYSAPI NTSTATUS NTAPI ZwDuplicateObject(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
+typedef NTSYSAPI NTSTATUS (NTAPI* PZWDUMPLICATEOBJECT)(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
+NTSYSAPI NTSTATUS NTAPI NtOpenProcess(OUT PHANDLE ProcessHandle, IN ACCESS_MASK AccessMask, IN POBJECT_ATTRIBUTES ObjectAttributes, IN PCLIENT_ID ClientId);
+NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess(IN HANDLE ProcessHandle, IN PROCESSINFOCLASS ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength);
+NTSYSAPI NTSTATUS NTAPI ZwClose(IN HANDLE ObjectHandle);
+typedef NTSYSAPI NTSTATUS(NTAPI* PZWCLOSE)(IN HANDLE ObjectHandle);
 
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwAllocateVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __in ULONG_PTR ZeroBits, __inout PSIZE_T RegionSize, __in ULONG AllocationType, __in ULONG Protect);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwWriteVirtualMemory(IN HANDLE ProcessHandle, IN PVOID BaseAddress, IN PVOID Buffer, IN ULONG NumberOfBytesToWrite, OUT PULONG NumberOfBytesWritten OPTIONAL);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory(IN HANDLE ProcessHandle, IN OUT PVOID *BaseAddress, IN OUT PULONG_PTR NumberOfBytesToProtect, IN ULONG NewAccessProtection, OUT PULONG OldAccessProtection);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwGetContextThread(IN HANDLE ThreadHandle, OUT PCONTEXT pContext);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwCreateThread(OUT PHANDLE ThreadHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL, IN HANDLE ProcessHandle, OUT PCLIENT_ID ClientId, IN PCONTEXT ThreadContext, IN PINITIAL_TEB InitialTeb, IN BOOLEAN CreateSuspended);
-extern "C" NTSYSAPI NTSTATUS NTAPI ZwResumeThread(IN HANDLE ThreadHandle, OUT PULONG SuspendCount OPTIONAL);
+NTSYSAPI NTSTATUS NTAPI ZwAllocateVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __in ULONG_PTR ZeroBits, __inout PSIZE_T RegionSize, __in ULONG AllocationType, __in ULONG Protect);
+NTSYSAPI NTSTATUS NTAPI ZwWriteVirtualMemory(IN HANDLE ProcessHandle, IN PVOID BaseAddress, IN PVOID Buffer, IN ULONG NumberOfBytesToWrite, OUT PULONG NumberOfBytesWritten OPTIONAL);
+NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory(IN HANDLE ProcessHandle, IN OUT PVOID *BaseAddress, IN OUT PULONG_PTR NumberOfBytesToProtect, IN ULONG NewAccessProtection, OUT PULONG OldAccessProtection);
+NTSYSAPI NTSTATUS NTAPI ZwGetContextThread(IN HANDLE ThreadHandle, OUT PCONTEXT pContext);
+NTSYSAPI NTSTATUS NTAPI ZwCreateThread(OUT PHANDLE ThreadHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL, IN HANDLE ProcessHandle, OUT PCLIENT_ID ClientId, IN PCONTEXT ThreadContext, IN PINITIAL_TEB InitialTeb, IN BOOLEAN CreateSuspended);
+NTSYSAPI NTSTATUS NTAPI ZwResumeThread(IN HANDLE ThreadHandle, OUT PULONG SuspendCount OPTIONAL);
+#ifdef __cplusplus
+};
+#endif
+
 #endif // _CUSTOM_NTDLL_INCLUDED

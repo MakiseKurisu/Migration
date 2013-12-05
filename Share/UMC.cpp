@@ -195,16 +195,16 @@ BYTE GetObjectTypeNumber(LPCWSTR ObjectName)
     OBJECT_TYPE_INFORMATION* Type = Types->ObjectTypeInformation;
     for (BYTE i = 0; i < Types->NumberOfObjectsTypes; i++)
     {
-        if (wcsncmp(Type->TypeName.Buffer, ObjectName,
-            Type->TypeName.Length < wcslen(ObjectName) ? Type->TypeName.Length : wcslen(ObjectName)) == NULL)
+        if (!wcsncmp(Type->TypeName.Buffer, ObjectName,
+            Type->TypeName.Length < wcslen(ObjectName) ? Type->TypeName.Length : wcslen(ObjectName)))
         {
             // Found!
             TypeNumber = i;
             break;
         }
-        Type = (OBJECT_TYPE_INFORMATION*) ((BYTE*) Type + Type->TypeName.MaximumLength);
-        Type = (OBJECT_TYPE_INFORMATION*) ((BYTE*) Type + sizeof(OBJECT_TYPE_INFORMATION));
-        Type = (OBJECT_TYPE_INFORMATION*) ((BYTE*) Type + (sizeof(ULONG) -(DWORD) Type % sizeof(ULONG)) % sizeof(ULONG));  // For Align
+        Type = (POBJECT_TYPE_INFORMATION) ((LPBYTE) Type + Type->TypeName.MaximumLength);
+        Type = (POBJECT_TYPE_INFORMATION) ((LPBYTE) Type + sizeof(OBJECT_TYPE_INFORMATION));
+        Type = (POBJECT_TYPE_INFORMATION) ((LPBYTE) Type + (sizeof(ULONG) -(DWORD) Type % sizeof(ULONG)) % sizeof(ULONG));  // For Align
     }
     GlobalFree(OutBuffer);
     if (TypeNumber != -1)
@@ -259,48 +259,48 @@ BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHan
     HANDLE hInjectProcess = NULL;
     HANDLE hThread = NULL;
     DWORD dwSize = 0;
-    CHAR* pszRemoteBuf = NULL;
+    LPBYTE lpszRemoteBuf = NULL;
     LPTHREAD_START_ROUTINE lpThreadFun = NULL;
 
     hInjectProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, TargetProcessId); // 不够WS，不过够了~
-    if (NULL == hInjectProcess)
+    if (!hInjectProcess)
     {
         return FALSE;
     }
 
     HANDLE TarhProcess = NULL;
     dwSize = sizeof(CloseCode) +1;
-    pszRemoteBuf = (CHAR*) VirtualAllocEx(hInjectProcess, NULL, dwSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    lpszRemoteBuf = (LPBYTE) VirtualAllocEx(hInjectProcess, NULL, dwSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     ZwDuplicateObject((HANDLE) -1, hProcess, hInjectProcess, &TarhProcess, PROCESS_ALL_ACCESS, 0, 0);
     *(HANDLE*) (CloseCode + 11) = hHandle;
     *(HANDLE*) (CloseCode + 16) = TarhProcess;
     *(HANDLE*) (CloseCode + 28) = TarhProcess;
-    *(LPVOID*) (CloseCode + 33) = (LPVOID) ZwClose;
-    *(LPVOID*) (CloseCode + 21) = (LPVOID) ZwDuplicateObject;
+    *(PZWCLOSE*) (CloseCode + 33) = ZwClose;
+    *(PZWDUMPLICATEOBJECT*) (CloseCode + 21) = ZwDuplicateObject;
 
-    if (NULL == pszRemoteBuf)
+    if (!lpszRemoteBuf)
     {
         CloseHandle(hInjectProcess);
         return FALSE;
     }
 
-    if (FALSE == WriteProcessMemory(hInjectProcess, pszRemoteBuf, CloseCode, sizeof(CloseCode), NULL))
+    if (!WriteProcessMemory(hInjectProcess, lpszRemoteBuf, CloseCode, sizeof(CloseCode), NULL))
     {
-        VirtualFreeEx(hInjectProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
+        VirtualFreeEx(hInjectProcess, lpszRemoteBuf, dwSize, MEM_DECOMMIT);
         CloseHandle(hInjectProcess);
         return FALSE;
     }
 
-    lpThreadFun = (PTHREAD_START_ROUTINE) pszRemoteBuf;
+    lpThreadFun = (LPTHREAD_START_ROUTINE) (SIZE_T) lpszRemoteBuf;
 
     hThread = CreateRemoteThread(hInjectProcess, NULL, 0, lpThreadFun, NULL, 0, NULL);
-    if (hThread == NULL)
+    if (!hThread)
     {
         hThread = OsCreateRemoteThread2(hInjectProcess, NULL, 0, lpThreadFun, NULL, 0, NULL);
     }
-    if (NULL == hThread)
+    if (!hThread)
     {
-        VirtualFreeEx(hInjectProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
+        VirtualFreeEx(hInjectProcess, lpszRemoteBuf, dwSize, MEM_DECOMMIT);
         CloseHandle(hInjectProcess);
         return FALSE;
     }
@@ -309,14 +309,14 @@ BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHan
     WaitForSingleObject(hThread, INFINITE);
     GetExitCodeThread(hThread, (DWORD*) &Status);
 
-    VirtualFreeEx(hInjectProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
+    VirtualFreeEx(hInjectProcess, lpszRemoteBuf, dwSize, MEM_DECOMMIT);
     CloseHandle(hThread);
     CloseHandle(hInjectProcess);
 
     return NT_SUCCESS(Status);
 }
 
-BOOL InjectRemoteCloseHandle(HANDLE hProcess, HANDLE hHandle)
+BOOL InjectRemoteCloseHandleByName(LPCWSTR lpszProcess, HANDLE hProcess, HANDLE hHandle)
 {
     // Scan for a whitelisted process pid..
     DWORD MyTar = 0;
@@ -329,7 +329,7 @@ BOOL InjectRemoteCloseHandle(HANDLE hProcess, HANDLE hHandle)
     {
         do
         {
-            if (lstrcmp(pe32.szExeFile, L"svchost.exe") == NULL)
+            if (!lstrcmp(pe32.szExeFile, lpszProcess))
             {
                 MyTar = pe32.th32ProcessID;
                 break;
@@ -379,8 +379,8 @@ HANDLE SearchProcessHandle(DWORD ProcessId, SYSTEM_HANDLE_INFORMATION_EX* Handle
                         RtlZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
                         Status = ZwQueryObject(hObject, ObjectTypeInformation, TypeInfo, obi.TypeInformationLength * 2, NULL);
 
-                        if (wcsncmp(TypeInfo->TypeName.Buffer, L"Process",
-                            TypeInfo->TypeName.Length < 7 ? TypeInfo->TypeName.Length : 7) == NULL)
+                        if (!wcsncmp(TypeInfo->TypeName.Buffer, L"Process",
+                            TypeInfo->TypeName.Length < 7 ? TypeInfo->TypeName.Length : 7))
                         {
                             ProcessTypeNumber = HandleInformation->Handles[i].ObjectTypeNumber;
                         }
@@ -469,8 +469,8 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
                         RtlZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
                         Status = ZwQueryObject(hObject, ObjectTypeInformation, TypeInfo, obi.TypeInformationLength * 2, NULL);
 
-                        if (wcsncmp(TypeInfo->TypeName.Buffer, L"Mutant",
-                            TypeInfo->TypeName.Length < 6 ? TypeInfo->TypeName.Length : 6) == NULL)
+                        if (!wcsncmp(TypeInfo->TypeName.Buffer, L"Mutant",
+                            TypeInfo->TypeName.Length < 6 ? TypeInfo->TypeName.Length : 6))
                         {
                             // Found!
                             MutantTypeNumber = HandleInformation->Handles[i].ObjectTypeNumber;
@@ -485,7 +485,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
         if (HandleInformation->Handles[i].ObjectTypeNumber == MutantTypeNumber)
         {
             HANDLE hProcess = SearchProcessHandle((DWORD) HandleInformation->Handles[i].UniqueProcessId, HandleInformation);
-            if (hProcess == NULL)
+            if (!hProcess)
             {
                 continue;
             }
@@ -528,7 +528,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
                 {
                                      ZwClose(hObject);
                                      hObject = INVALID_HANDLE_VALUE;
-                                     InjectRemoteCloseHandle(hProcess, HandleInformation->Handles[i].HandleValue);
+                                     InjectRemoteCloseHandleByName(L"svchost.exe", hProcess, HandleInformation->Handles[i].HandleValue);
                                      break;
                 }
                 default:
