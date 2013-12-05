@@ -21,9 +21,15 @@
     <ClCompile Include="..\Share\UMC.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Share\RTL.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Share\UMC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Share\RTL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

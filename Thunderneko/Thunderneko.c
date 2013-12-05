@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <Windows.h>
 #include "..\Share\UMC.h"
+#include "..\Share\RTL.h"
 
 HMODULE hMyModule = NULL;
 WCHAR DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
@@ -23,7 +24,7 @@ HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
         return DONT_CLOSE;
     }
 
-    if (!wcsncmp(MutantName, DNFMutantName, nDNFMutantName) || !wcsncmp(MutantName, DNFIPCMutantName, nDNFIPCMutantName) || !wcsncmp(MutantName, DNFLauncherMutantName, nDNFLauncherMutantName))
+    if (!Mstrcmpn(MutantName, DNFMutantName, nDNFMutantName) || !Mstrcmpn(MutantName, DNFIPCMutantName, nDNFIPCMutantName) || !Mstrcmpn(MutantName, DNFLauncherMutantName, nDNFLauncherMutantName))
     {
         FoundCount++;
         return CLOSE_DIRECT;

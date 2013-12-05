@@ -4,6 +4,7 @@
 
 #include "ntdll.h"
 #include "UMC.h"
+#include "RTL.h"
 
 USHORT ProcessTypeNumber = 0xFFFF;
 USHORT MutantTypeNumber = 0xFFFF;
@@ -193,8 +194,8 @@ BYTE GetObjectTypeNumber(LPCWSTR ObjectName)
     OBJECT_TYPE_INFORMATION* Type = Types->ObjectTypeInformation;
     for (BYTE i = 0; i < Types->NumberOfObjectsTypes; i++)
     {
-        if (!wcsncmp(Type->TypeName.Buffer, ObjectName,
-            Type->TypeName.Length < wcslen(ObjectName) ? Type->TypeName.Length : wcslen(ObjectName)))
+        if (!Mstrcmpn(Type->TypeName.Buffer, ObjectName,
+            Type->TypeName.Length < wcslen(ObjectName) ? Type->TypeName.Length : lstrlen(ObjectName)))
         {
             // Found!
             TypeNumber = i;
@@ -377,7 +378,7 @@ HANDLE SearchProcessHandle(DWORD ProcessId, SYSTEM_HANDLE_INFORMATION_EX* Handle
                         RtlZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
                         Status = ZwQueryObject(hObject, ObjectTypeInformation, TypeInfo, obi.TypeInformationLength * 2, NULL);
 
-                        if (!wcsncmp(TypeInfo->TypeName.Buffer, L"Process",
+                        if (!Mstrcmpn(TypeInfo->TypeName.Buffer, L"Process",
                             TypeInfo->TypeName.Length < 7 ? TypeInfo->TypeName.Length : 7))
                         {
                             ProcessTypeNumber = HandleInformation->Handles[i].ObjectTypeNumber;
@@ -467,7 +468,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
                         RtlZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
                         Status = ZwQueryObject(hObject, ObjectTypeInformation, TypeInfo, obi.TypeInformationLength * 2, NULL);
 
-                        if (!wcsncmp(TypeInfo->TypeName.Buffer, L"Mutant",
+                        if (!Mstrcmpn(TypeInfo->TypeName.Buffer, L"Mutant",
                             TypeInfo->TypeName.Length < 6 ? TypeInfo->TypeName.Length : 6))
                         {
                             // Found!

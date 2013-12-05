@@ -5,6 +5,7 @@
 #include <CommCtrl.h>
 #include <tlhelp32.h>
 #include "..\Share\UMC.h"
+#include "..\Share\RTL.h"
 #include "res\Resource.h"
 
 typedef VOID(WINAPI *GNSITYPE)(LPSYSTEM_INFO lpSystemInfo);
@@ -67,7 +68,7 @@ HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
         return DONT_CLOSE;
     }
 
-    if (!wcsncmp(MutantName, DNFMutantName, nDNFMutantName) || !wcsncmp(MutantName, DNFIPCMutantName, nDNFIPCMutantName))
+    if (!Mstrcmpn(MutantName, DNFMutantName, nDNFMutantName) || !Mstrcmpn(MutantName, DNFIPCMutantName, nDNFIPCMutantName))
     {
         FoundCount++;
 
@@ -80,7 +81,7 @@ HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
             return CLOSE_DIRECT;
         }
     }
-    else if (!wcsncmp(MutantName, DNFLauncherMutantName, nDNFLauncherMutantName))
+    else if (!Mstrcmpn(MutantName, DNFLauncherMutantName, nDNFLauncherMutantName))
     {
         FoundCount++;
         return CLOSE_DIRECT;
@@ -173,7 +174,7 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
         return -2;
     }
 
-    dwSize = (DWORD) ((wcslen(pszDllFile) + 1) * 2);
+    dwSize = (DWORD) ((lstrlen(pszDllFile) + 1) * 2);
     pszRemoteBuf = (LPSTR) VirtualAllocEx(hProcess, NULL, dwSize, MEM_COMMIT, PAGE_READWRITE);
     if (!pszRemoteBuf)
     {
@@ -360,10 +361,7 @@ INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-int APIENTRY wWinMain(HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    LPWSTR    lpCmdLine,
-    int       nCmdShow)
+INT_PTR APIENTRY Main()
 {
     if (!AdjustPrivilege(TRUE))
     {
@@ -381,5 +379,5 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 #endif
     }
 
-    return (int) DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAINDLG), NULL, WndProc);
+    return DialogBox(NULL, MAKEINTRESOURCE(IDD_MAINDLG), NULL, WndProc);
 }
