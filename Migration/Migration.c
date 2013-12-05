@@ -8,7 +8,8 @@
 #include "res\Resource.h"
 
 typedef VOID(WINAPI *GNSITYPE)(LPSYSTEM_INFO lpSystemInfo);
-WCHAR DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
+WCHAR DNFMutantName[] = L"dbefeuate_ccen_khxfor_lcar_blr";
+WCHAR DNFIPCMutantName[] = L"IPC_INFO";
 WCHAR DNFLauncherMutantName [] = L"NeopleLauncher";
 int FoundCount = 0;
 BOOL RunningOnX86 = TRUE;
@@ -58,15 +59,15 @@ BOOL AdjustPrivilege(BOOL bEnable)
 HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
     ULONG nDNFMutantName = sizeof(DNFMutantName) / sizeof(DNFMutantName[0]) - 1;
+    ULONG nDNFIPCMutantName = sizeof(DNFIPCMutantName) / sizeof(DNFIPCMutantName[0]) - 1;
     ULONG nDNFLauncherMutantName = sizeof(DNFLauncherMutantName) / sizeof(DNFLauncherMutantName[0]) - 1;
-    ULONG nMaxLength = (sizeof(DNFMutantName) > sizeof(DNFLauncherMutantName)) ? nDNFMutantName : nDNFLauncherMutantName;
 
-    if (NameLength < nMaxLength)
+    if (NameLength < 15)
     {
         return DONT_CLOSE;
     }
 
-    if (!wcsncmp(MutantName, DNFMutantName, nDNFMutantName))
+    if (!wcsncmp(MutantName, DNFMutantName, nDNFMutantName) || !wcsncmp(MutantName, DNFIPCMutantName, nDNFIPCMutantName))
     {
         FoundCount++;
 
