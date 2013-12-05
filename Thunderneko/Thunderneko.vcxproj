@@ -68,8 +68,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Share\UMC.cpp" />
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="..\Share\UMC.c" />
+    <ClCompile Include="dllmain.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -79,7 +79,7 @@
       </DebugInformationFormat>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
     </ClCompile>
-    <ClCompile Include="Thunderneko.cpp" />
+    <ClCompile Include="Thunderneko.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Share\UMC.h" />

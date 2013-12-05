@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="Thunderneko.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Thunderneko.cpp">
+    <ClCompile Include="dllmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Share\UMC.cpp">
+    <ClCompile Include="..\Share\UMC.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

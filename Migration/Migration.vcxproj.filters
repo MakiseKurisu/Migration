@@ -34,10 +34,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Migration.cpp">
+    <ClCompile Include="Migration.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Share\UMC.cpp">
+    <ClCompile Include="..\Share\UMC.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

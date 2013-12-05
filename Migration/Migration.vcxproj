@@ -141,8 +141,8 @@
     <ResourceCompile Include="Migration.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Share\UMC.cpp" />
-    <ClCompile Include="Migration.cpp" />
+    <ClCompile Include="..\Share\UMC.c" />
+    <ClCompile Include="Migration.c" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
