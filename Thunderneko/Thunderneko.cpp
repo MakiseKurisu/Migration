@@ -14,17 +14,19 @@ int FoundCount = 0;
 HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
     if (NameLength < 30)
-        return DONT_CLOSE;
-
-    LPWSTR RevName = new WCHAR[NameLength + 1];
-    lstrcpyn(RevName, MutantName, NameLength);
-    if (wcsncmp(RevName, DNFMutantName, 30) == NULL || wcsncmp(RevName, DNFLauncherMutantName, 14) == NULL)
     {
-        delete [] RevName;
+        return DONT_CLOSE;
+    }
+
+    LPWSTR RevName = (LPWSTR) GlobalAlloc(GPTR, sizeof(WCHAR) * (NameLength + 1));
+    lstrcpyn(RevName, MutantName, NameLength);
+    if (!wcsncmp(RevName, DNFMutantName, 30) || !wcsncmp(RevName, DNFLauncherMutantName, 14))
+    {
+        GlobalFree(RevName);
         FoundCount++;
         return CLOSE_DIRECT;
     }
-    delete [] RevName;
+    GlobalFree(RevName);
     return DONT_CLOSE;
 }
 

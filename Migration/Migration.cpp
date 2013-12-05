@@ -9,7 +9,7 @@
 #include "Migration.h"
 
 WCHAR DNFMutantName [] = L"dbefeuate_ccen_khxfor_lcar_blr";
-WCHAR DNFLauncherMutantName[] = L"NeopleLauncher";
+WCHAR DNFLauncherMutantName [] = L"NeopleLauncher";
 int FoundCount = 0;
 BOOL RunningOnX86 = TRUE;
 
@@ -19,16 +19,23 @@ HWND hMainWindow = NULL;
 int Is64bitWindows()
 {
     GNSITYPE GetNativeSystemInfo = (GNSITYPE) GetProcAddress(GetModuleHandle(L"kernel32.dll"), "GetNativeSystemInfo");
-    if (!GetNativeSystemInfo) return 0;
+    if (!GetNativeSystemInfo)
+    {
+        return 0;
+    }
 
     SYSTEM_INFO si;
-    ZeroMemory(&si, sizeof(si));
+    RtlZeroMemory(&si, sizeof(si));
     GetNativeSystemInfo(&si);
-    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+    switch (si.wProcessorArchitecture)
+    {
+    case PROCESSOR_ARCHITECTURE_INTEL:
         return 0;
-    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+    case PROCESSOR_ARCHITECTURE_AMD64:
         return 1;
-    return 2;
+    default:
+        return 2;
+    }
 }
 
 BOOL AdjustPrivilege(BOOL bEnable)
@@ -40,7 +47,10 @@ BOOL AdjustPrivilege(BOOL bEnable)
     tkp.Privileges[0].Attributes = 0;
     if (bEnable) tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-    if (!LookupPrivilegeValue(NULL, L"SeDebugPrivilege", &tkp.Privileges[0].Luid)) return FALSE;
+    if (!LookupPrivilegeValue(NULL, L"SeDebugPrivilege", &tkp.Privileges[0].Luid))
+    {
+        return FALSE;
+    }
     if (OpenProcessToken((HANDLE) -1, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
     {
         if (AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, NULL, NULL))
@@ -56,27 +66,33 @@ BOOL AdjustPrivilege(BOOL bEnable)
 HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
 {
     if (NameLength < 30)
+    {
         return DONT_CLOSE;
+    }
 
-    LPWSTR RevName = new WCHAR[NameLength + 1];
+    LPWSTR RevName = (LPWSTR) GlobalAlloc(GPTR, sizeof(WCHAR) * (NameLength + 1));
     lstrcpyn(RevName, MutantName, NameLength);
     if (wcsncmp(RevName, DNFMutantName, 30) == NULL)
     {
-        delete [] RevName;
+        GlobalFree(RevName);
         FoundCount++;
 
         if (RunningOnX86)
+        {
             return CLOSE_INJECT;
+        }
         else
+        {
             return CLOSE_DIRECT;
+        }
     }
     else if (wcsncmp(RevName, DNFLauncherMutantName, 14) == NULL)
     {
-        delete [] RevName;
+        GlobalFree(RevName);
         FoundCount++;
         return CLOSE_DIRECT;
     }
-    delete [] RevName;
+    GlobalFree(RevName);
     return DONT_CLOSE;
 }
 
@@ -90,18 +106,26 @@ BOOL ShowHideAllDnf(BOOL bShow)
         Migration = hMainWindow;
     }
     HWND hWnd = NULL;
+
     for (;;)
     {
         hWnd = FindWindowEx(EvilParent, NULL, L"地下城与勇士", L"地下城与勇士");
+        if (hWnd == NULL)
+        {
+            break;
+        }
 
-        if (hWnd == NULL) break;
         if (bShow)
+        {
             SetParent(hWnd, Migration);
+        }
         FlashWindow(hWnd, TRUE);
         ShowWindow(hWnd, bShow ? SW_SHOW : SW_HIDE);
         FlashWindow(hWnd, TRUE);
         if (!bShow)
+        {
             SetParent(hWnd, Migration);
+        }
     }
     return TRUE;
 }
@@ -120,11 +144,11 @@ void FuckJunkProcess()
     {
         do
         {
-            if (lstrcmpi(pe32.szExeFile, L"qqlogin.exe") == NULL || lstrcmpi(pe32.szExeFile, L"QQDL.exe") == NULL || lstrcmpi(pe32.szExeFile, L"TenSafe.exe") == NULL)
+            if (!lstrcmpi(pe32.szExeFile, L"qqlogin.exe") || !lstrcmpi(pe32.szExeFile, L"QQDL.exe") || !lstrcmpi(pe32.szExeFile, L"TenSafe.exe"))
             {
                 PidCollect[Collected++] = pe32.th32ProcessID;
             }
-            else if (lstrcmpi(pe32.szExeFile, L"dnf.exe") == NULL)
+            else if (!lstrcmpi(pe32.szExeFile, L"dnf.exe"))
             {
                 DNFCount++;
             }
@@ -152,20 +176,20 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
     LPTHREAD_START_ROUTINE lpThreadFun = NULL;
 
     hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, dwProcessId);
-    if (NULL == hProcess)
+    if (!hProcess)
     {
         return -2;
     }
 
     dwSize = (DWORD) ((wcslen(pszDllFile) + 1) * 2);
     pszRemoteBuf = (LPSTR) VirtualAllocEx(hProcess, NULL, dwSize, MEM_COMMIT, PAGE_READWRITE);
-    if (NULL == pszRemoteBuf)
+    if (!pszRemoteBuf)
     {
         CloseHandle(hProcess);
         return -2;
     }
 
-    if (FALSE == WriteProcessMemory(hProcess, pszRemoteBuf, (LPVOID) pszDllFile, dwSize, NULL))
+    if (!WriteProcessMemory(hProcess, pszRemoteBuf, (LPVOID) pszDllFile, dwSize, NULL))
     {
         VirtualFreeEx(hProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
         CloseHandle(hProcess);
@@ -174,7 +198,7 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
 
     lpThreadFun = (LPTHREAD_START_ROUTINE) LoadLibraryW;
 
-    if (NULL == lpThreadFun)
+    if (!lpThreadFun)
     {
         VirtualFreeEx(hProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
         CloseHandle(hProcess);
@@ -182,7 +206,10 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
     }
 
     hThread = CreateRemoteThread(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
-    if (NULL == hThread) hThread = OsCreateRemoteThread2(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
+    if (NULL == hThread)
+    {
+        hThread = OsCreateRemoteThread2(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
+    }
     if (NULL == hThread)
     {
         VirtualFreeEx(hProcess, pszRemoteBuf, dwSize, MEM_DECOMMIT);
@@ -200,8 +227,10 @@ int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset
     lpThreadFun = (LPTHREAD_START_ROUTINE) ((SIZE_T) hDLLModule + FuncOffset);
 
     hThread = CreateRemoteThread(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
-    if (NULL == hThread) hThread = OsCreateRemoteThread2(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
-
+    if (NULL == hThread)
+    {
+        hThread = OsCreateRemoteThread2(hProcess, NULL, 0, lpThreadFun, pszRemoteBuf, 0, NULL);
+    }
     if (NULL == hThread)
     {
         CloseHandle(hProcess);
@@ -221,11 +250,15 @@ int InjectEnumerateAndCloseMutant()
 {
     HMODULE hThunderNeko = LoadLibrary(L"ThunderNeko.dll");
     if (hThunderNeko == NULL)
+    {
         return -1;
+    }
 
     LPVOID FuncAddress = GetProcAddress(hThunderNeko, "MoeMoeAndExit");
     if (FuncAddress == NULL)
+    {
         return -1;
+    }
 
     WCHAR FullPath[MAX_PATH * 2];
     SIZE_T FuncOffset = (LPBYTE) FuncAddress - (LPBYTE) hThunderNeko;

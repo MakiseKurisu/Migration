@@ -184,11 +184,11 @@ BYTE GetObjectTypeNumber(LPCWSTR ObjectName)
 {
     BYTE TypeNumber = (BYTE) -1;
     ULONG cbReqLength;
-    BYTE* OutBuffer = new BYTE[100];
-    ZeroMemory(OutBuffer, 100);
+    LPBYTE OutBuffer = (LPBYTE) GlobalAlloc(GPTR, sizeof(BYTE) * 100);
+    RtlZeroMemory(OutBuffer, 100);
     ZwQueryObject(NULL, ObjectAllTypesInformation, OutBuffer, 100, &cbReqLength);
-    delete [] OutBuffer;
-    OutBuffer = new BYTE[cbReqLength];
+    GlobalFree(OutBuffer);
+    OutBuffer = (LPBYTE) GlobalAlloc(GPTR, sizeof(BYTE) * cbReqLength);
     ZwQueryObject(NULL, ObjectAllTypesInformation, OutBuffer, cbReqLength, &cbReqLength);
 
     OBJECT_TYPES_INFORMATION* Types = (OBJECT_TYPES_INFORMATION*) OutBuffer;
@@ -206,7 +206,7 @@ BYTE GetObjectTypeNumber(LPCWSTR ObjectName)
         Type = (OBJECT_TYPE_INFORMATION*) ((BYTE*) Type + sizeof(OBJECT_TYPE_INFORMATION));
         Type = (OBJECT_TYPE_INFORMATION*) ((BYTE*) Type + (sizeof(ULONG) -(DWORD) Type % sizeof(ULONG)) % sizeof(ULONG));  // For Align
     }
-    delete [] OutBuffer;
+    GlobalFree(OutBuffer);
     if (TypeNumber != -1)
     {
         TypeNumber++; // "Number" begins from 1.
@@ -221,12 +221,7 @@ BYTE GetObjectTypeNumber(LPCWSTR ObjectName)
 
 BOOL RemoteCloseHandle(HANDLE hProcess, HANDLE hHandle)
 {
-    NTSTATUS Status = ZwDuplicateObject(hProcess, hHandle, NULL, NULL, 0, 0, DUPLICATE_CLOSE_SOURCE);
-
-    if (NT_SUCCESS(Status))
-        return TRUE;
-    else
-        return FALSE;
+    return NT_SUCCESS(ZwDuplicateObject(hProcess, hHandle, NULL, NULL, 0, 0, DUPLICATE_CLOSE_SOURCE));
 }
 
 BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHandle)
@@ -318,10 +313,7 @@ BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHan
     CloseHandle(hThread);
     CloseHandle(hInjectProcess);
 
-    if (NT_SUCCESS(Status))
-        return TRUE;
-    else
-        return FALSE;
+    return NT_SUCCESS(Status);
 }
 
 BOOL InjectRemoteCloseHandle(HANDLE hProcess, HANDLE hHandle)
@@ -356,13 +348,15 @@ HANDLE SearchProcessHandle(DWORD ProcessId, SYSTEM_HANDLE_INFORMATION_EX* Handle
     NTSTATUS Status;
     HANDLE hProcessGot;
 
-    ZeroMemory(&oa, sizeof(oa));
+    RtlZeroMemory(&oa, sizeof(oa));
     oa.Length = sizeof(oa);
     cid.UniqueProcess = (HANDLE) ProcessId;
     cid.UniqueThread = 0;
     Status = NtOpenProcess(&hProcessGot, PROCESS_ALL_ACCESS, &oa, &cid);
     if (NT_SUCCESS(Status))
+    {
         return hProcessGot;
+    }
 
     for (ULONG i = 0; i < HandleInformation->NumberOfHandles; i++)
     {
@@ -377,12 +371,12 @@ HANDLE SearchProcessHandle(DWORD ProcessId, SYSTEM_HANDLE_INFORMATION_EX* Handle
                 {
                     OBJECT_BASIC_INFORMATION obi;
                     OBJECT_TYPE_INFORMATION* TypeInfo = NULL;
-                    ZeroMemory(&obi, sizeof(OBJECT_BASIC_INFORMATION));
+                    RtlZeroMemory(&obi, sizeof(OBJECT_BASIC_INFORMATION));
                     ZwQueryObject(hObject, ObjectBasicInformation, &obi, sizeof(obi), NULL);
                     if (obi.TypeInformationLength)
                     {
-                        TypeInfo = (OBJECT_TYPE_INFORMATION*)new BYTE[obi.TypeInformationLength * 2];
-                        ZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
+                        TypeInfo = (POBJECT_TYPE_INFORMATION) GlobalAlloc(GPTR, sizeof(BYTE) *(obi.TypeInformationLength * 2));
+                        RtlZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
                         Status = ZwQueryObject(hObject, ObjectTypeInformation, TypeInfo, obi.TypeInformationLength * 2, NULL);
 
                         if (wcsncmp(TypeInfo->TypeName.Buffer, L"Process",
@@ -390,7 +384,7 @@ HANDLE SearchProcessHandle(DWORD ProcessId, SYSTEM_HANDLE_INFORMATION_EX* Handle
                         {
                             ProcessTypeNumber = HandleInformation->Handles[i].ObjectTypeNumber;
                         }
-                        delete [] TypeInfo;
+                        GlobalFree(TypeInfo);
                     }
                     ZwClose(hObject);
                 }
@@ -429,7 +423,7 @@ HANDLE SearchProcessHandle(DWORD ProcessId, SYSTEM_HANDLE_INFORMATION_EX* Handle
 BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
 {
     ULONG BufLength = 0x100;
-    BYTE* OutBuffer = new BYTE[BufLength];
+    LPBYTE OutBuffer = (LPBYTE) GlobalAlloc(GPTR, sizeof(BYTE) * BufLength);
     NTSTATUS Status;
 
     // it's strange, if we use the length value that returned in last parameter, we'll still get STATUS_INFO_LENGTH_MISMATCH.
@@ -439,9 +433,8 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
         BufLength *= 2;
 
         // Realloc 
-        delete [] OutBuffer;
-        OutBuffer = new BYTE[BufLength];
-        ZeroMemory(OutBuffer, BufLength);
+        OutBuffer = (LPBYTE) GlobalReAlloc(OutBuffer, sizeof(BYTE) * BufLength, GMEM_MOVEABLE);
+        RtlZeroMemory(OutBuffer, BufLength);
 
         Status = ZwQuerySystemInformation(SystemExtendedHandleInformation, OutBuffer, BufLength, NULL);
     } while (Status == STATUS_INFO_LENGTH_MISMATCH);
@@ -451,7 +444,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
         return FALSE;
     }
 
-    SYSTEM_HANDLE_INFORMATION_EX* HandleInformation = (SYSTEM_HANDLE_INFORMATION_EX*) OutBuffer;
+    SYSTEM_HANDLE_INFORMATION_EX* HandleInformation = (PSYSTEM_HANDLE_INFORMATION_EX) OutBuffer;
     for (ULONG i = 0; i < HandleInformation->NumberOfHandles; i++)
     {
         // 搜索出一个MutantTypeNumber，比上面的GetObjectTypeNumber可靠
@@ -467,13 +460,13 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
                     NTSTATUS Status;
                     OBJECT_BASIC_INFORMATION obi;
                     OBJECT_TYPE_INFORMATION* TypeInfo = NULL;
-                    ZeroMemory(&obi, sizeof(OBJECT_BASIC_INFORMATION));
+                    RtlZeroMemory(&obi, sizeof(OBJECT_BASIC_INFORMATION));
                     ZwQueryObject(hObject, ObjectBasicInformation, &obi, sizeof(obi), NULL);
                     if (obi.TypeInformationLength)
                     {
                         // Fix me : if we meet a NamedPipe or File Object before a Mutant.... we'll deadlock under XP or Vista!
-                        TypeInfo = (OBJECT_TYPE_INFORMATION*)new BYTE[obi.TypeInformationLength * 2];
-                        ZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
+                        TypeInfo = (POBJECT_TYPE_INFORMATION) GlobalAlloc(GPTR, sizeof(BYTE) * (obi.TypeInformationLength * 2));
+                        RtlZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
                         Status = ZwQueryObject(hObject, ObjectTypeInformation, TypeInfo, obi.TypeInformationLength * 2, NULL);
 
                         if (wcsncmp(TypeInfo->TypeName.Buffer, L"Mutant",
@@ -482,7 +475,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
                             // Found!
                             MutantTypeNumber = HandleInformation->Handles[i].ObjectTypeNumber;
                         }
-                        delete [] TypeInfo;
+                        GlobalFree(TypeInfo);
                     }
                     ZwClose(hObject);
                 }
@@ -507,19 +500,19 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
             OBJECT_BASIC_INFORMATION obi;
             OBJECT_TYPE_INFORMATION* TypeInfo = NULL;
             OBJECT_NAME_INFORMATION* NameInfo = NULL;
-            ZeroMemory(&obi, sizeof(OBJECT_BASIC_INFORMATION));
+            RtlZeroMemory(&obi, sizeof(OBJECT_BASIC_INFORMATION));
             ZwQueryObject(hObject, ObjectBasicInformation, &obi, sizeof(obi), NULL);
             if (obi.TypeInformationLength)
             {
-                TypeInfo = (OBJECT_TYPE_INFORMATION*)new BYTE[obi.TypeInformationLength * 2];
-                ZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
+                TypeInfo = (POBJECT_TYPE_INFORMATION) GlobalAlloc(GPTR, sizeof(BYTE) * (obi.TypeInformationLength * 2));
+                RtlZeroMemory(TypeInfo, obi.TypeInformationLength * 2);
                 Status = ZwQueryObject(hObject, ObjectTypeInformation, TypeInfo, obi.TypeInformationLength * 2, NULL);
             }
 
             if (obi.NameInformationLength)
             {
-                NameInfo = (OBJECT_NAME_INFORMATION*)new BYTE[obi.NameInformationLength * 2];
-                ZeroMemory(NameInfo, obi.NameInformationLength * 2);
+                NameInfo = (POBJECT_NAME_INFORMATION) GlobalAlloc(GPTR, sizeof(BYTE) * (obi.NameInformationLength * 2));
+                RtlZeroMemory(NameInfo, obi.NameInformationLength * 2);
                 Status = ZwQueryObject(hObject, ObjectNameInformation, NameInfo, obi.NameInformationLength * 2, NULL);
 
                 switch (ShouldClose(NameInfo->Name.Buffer, NameInfo->Name.Length))
@@ -544,13 +537,23 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
             }
 
             if (TypeInfo)
-                delete [] TypeInfo;
+            {
+                GlobalFree(TypeInfo);
+            }
             if (NameInfo)
-                delete [] NameInfo;
-            if (hObject != INVALID_HANDLE_VALUE) ZwClose(hObject);
-            if (hProcess) ZwClose(hProcess);
+            {
+                GlobalFree(NameInfo);
+            }
+            if (hObject != INVALID_HANDLE_VALUE)
+            {
+                ZwClose(hObject);
+            }
+            if (hProcess)
+            {
+                ZwClose(hProcess);
+            }
         }
     }
-    delete [] OutBuffer;
+    GlobalFree(OutBuffer);
     return TRUE;
 }
