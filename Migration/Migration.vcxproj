@@ -98,7 +98,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>ntdll.lib;comctl32.lib;kernel32.lib;user32.lib;advapi32.lib</AdditionalDependencies>
       <EntryPointSymbol>Main</EntryPointSymbol>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,7 +116,8 @@
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalDependencies>ntdll.lib;comctl32.lib;kernel32.lib;user32.lib;advapi32.lib</AdditionalDependencies>
       <EntryPointSymbol>Main</EntryPointSymbol>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -169,6 +171,12 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\Migration.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\256.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="res\manifest.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

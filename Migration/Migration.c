@@ -11,7 +11,8 @@
 typedef VOID(WINAPI *GNSITYPE)(LPSYSTEM_INFO lpSystemInfo);
 WCHAR DNFMutantName[] = L"dbefeuate_ccen_khxfor_lcar_blr";
 WCHAR DNFIPCMutantName[] = L"IPC_INFO";
-WCHAR DNFLauncherMutantName [] = L"NeopleLauncher";
+WCHAR DNFLauncherMutantName[] = L"NeopleLauncher";
+WCHAR DNFClientMutantName[] = L"NeopleDNFClient";
 int FoundCount = 0;
 BOOL RunningOnX86 = TRUE;
 
@@ -62,13 +63,19 @@ HOWTOCLOSE IdentifyDNFMutant(LPCWSTR MutantName, ULONG NameLength)
     ULONG nDNFMutantName = sizeof(DNFMutantName) / sizeof(DNFMutantName[0]) - 1;
     ULONG nDNFIPCMutantName = sizeof(DNFIPCMutantName) / sizeof(DNFIPCMutantName[0]) - 1;
     ULONG nDNFLauncherMutantName = sizeof(DNFLauncherMutantName) / sizeof(DNFLauncherMutantName[0]) - 1;
+    ULONG nDNFClientMutantName = sizeof(DNFClientMutantName) / sizeof(DNFClientMutantName[0]) - 1;
 
-    if (NameLength < 15)
+    if (!MutantName || NameLength < 15)
     {
         return DONT_CLOSE;
     }
 
-    if (!Mstrcmpn(MutantName, DNFMutantName, nDNFMutantName) || !Mstrcmpn(MutantName, DNFIPCMutantName, nDNFIPCMutantName))
+    int i = lstrlen(MutantName);
+    MutantName += i;
+    for (; i && (--MutantName)[0] != L'\\'; i--);
+    MutantName++;
+
+    if (!Mstrcmpn(MutantName, DNFMutantName, nDNFMutantName) || !Mstrcmpn(MutantName, DNFIPCMutantName, nDNFIPCMutantName) || !Mstrcmpn(MutantName, DNFClientMutantName, nDNFClientMutantName))
     {
         FoundCount++;
 
@@ -121,43 +128,6 @@ BOOL ShowHideAllDnf(BOOL bShow)
         }
     }
     return TRUE;
-}
-
-void FuckJunkProcess()
-{
-    HANDLE hProcessSnap = NULL;
-    PROCESSENTRY32 pe32 = { 0 };
-    hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    DWORD PidCollect[16] = { 0 };
-    ULONG_PTR Collected = 0;
-    int DNFCount = 0;
-
-    pe32.dwSize = sizeof(pe32);
-    if (Process32First(hProcessSnap, &pe32))
-    {
-        do
-        {
-            if (!lstrcmpi(pe32.szExeFile, L"qqlogin.exe") || !lstrcmpi(pe32.szExeFile, L"QQDL.exe") || !lstrcmpi(pe32.szExeFile, L"TenSafe.exe"))
-            {
-                PidCollect[Collected++] = pe32.th32ProcessID;
-            }
-            else if (!lstrcmpi(pe32.szExeFile, L"dnf.exe"))
-            {
-                DNFCount++;
-            }
-        } while (Process32Next(hProcessSnap, &pe32));
-    }
-
-    CloseHandle(hProcessSnap);
-    if (DNFCount >= 2)
-    {
-        for (ULONG_PTR i = 0; i < Collected; i++)
-        {
-            HANDLE hMLGB = OpenProcess(PROCESS_TERMINATE, FALSE, PidCollect[i]);
-            TerminateProcess(hMLGB, 0);
-            CloseHandle(hMLGB);
-        }
-    }
 }
 
 int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset)
@@ -280,83 +250,81 @@ int InjectEnumerateAndCloseMutant()
     return InjectDllAndRunFunc(FullPath, MyTar, FuncOffset);
 }
 
-
 INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int wmId;
 
     switch (message)
     {
-    case WM_INITDIALOG:
-        hMainWindow = hWnd;
+        case WM_INITDIALOG:
+            hMainWindow = hWnd;
 #ifdef _WIN64
-        {
-            WCHAR WindowTitle[200] = { 0 };
-            GetWindowText(hWnd, WindowTitle, 200);
-            lstrcat(WindowTitle, L" (x64)");
-            SetWindowText(hWnd, WindowTitle);
-        }
+            {
+                WCHAR WindowTitle[200] = { 0 };
+                GetWindowText(hWnd, WindowTitle, 200);
+                lstrcat(WindowTitle, L" (x64)");
+                SetWindowText(hWnd, WindowTitle);
+            }
 #endif
-        return TRUE;
-    case WM_COMMAND:
-        wmId = LOWORD(wParam);
-        switch (wmId)
-        {
-        case IDCANCEL:
-            EndDialog(hWnd, 0);
-            break;
-        case IDC_CLOSEHANDLE:
-        {
+            return TRUE;
+        case WM_COMMAND:
+            wmId = LOWORD(wParam);
+            switch (wmId)
+            {
+                case IDCANCEL:
+                    EndDialog(hWnd, 0);
+                    break;
+                case IDC_CLOSEHANDLE:
+                {
 #ifndef _WIN64
-                                if (!IsWindowsVistaOrGreater() && RunningOnX86)
-                                {
-                                    // 这年头用XP的没人权
-                                    FoundCount = InjectEnumerateAndCloseMutant();
-                                    if (FoundCount == -1)
-                                    {
-                                        MessageBox(hWnd, L"您正在使用的Windows操作系统版本小于Windows Vista，因此程序需要ThunderNeko.dll放置在本程序目录下才能正常工作。\n\n但是您的ThunderNeko.dll很可能损坏或不存在。", L"这年头用XP的没人权", MB_ICONINFORMATION | MB_OK);
-                                    }
-                                    if (FoundCount == -2)
-                                    {
-                                        MessageBox(hWnd, L"插入失败...", L"...", MB_ICONSTOP | MB_OK);
-                                    }
-                                }
-                                else
+                    if (!IsWindowsVistaOrGreater() && RunningOnX86)
+                    {
+                        // 这年头用XP的没人权
+                        FoundCount = InjectEnumerateAndCloseMutant();
+                        if (FoundCount == -1)
+                        {
+                            MessageBox(hWnd, L"您正在使用的Windows操作系统版本小于Windows Vista，因此程序需要ThunderNeko.dll放置在本程序目录下才能正常工作。\n\n但是您的ThunderNeko.dll很可能损坏或不存在。", L"这年头用XP的没人权", MB_ICONINFORMATION | MB_OK);
+                        }
+                        if (FoundCount == -2)
+                        {
+                            MessageBox(hWnd, L"插入失败...", L"...", MB_ICONSTOP | MB_OK);
+                        }
+                    }
+                    else
 #endif
-                                {
-                                    FoundCount = 0;
-                                    if (!EnumerateAndCloseMutant(IdentifyDNFMutant))
-                                    {
-                                        MessageBox(hWnd, L"句柄对象枚举中出现了一些问题，是权限不够吗？\n\n如果您使用的操作系统是Windows XP/2003 x64 Edition，请务必下载x64版本使用，可能可以解决这个问题。", L"错误", MB_ICONSTOP | MB_OK);
-                                        break;
-                                    }
-                                }
-                                if (FoundCount == 0)
-                                {
-                                    MessageBox(hWnd, L"咱根本就没找到人...", L"错误", MB_OK | MB_ICONSTOP);
-                                }
-                                else if (FoundCount > 1)
-                                {
-                                    MessageBox(hWnd, L"说真的，我最讨厌多P了..", L"成功", MB_OK | MB_ICONINFORMATION);
-                                }
-                                else if (FoundCount == 1)
-                                {
-                                    MessageBox(hWnd, L"呃，就一发，就一发。", L"完成", MB_OK | MB_ICONINFORMATION);
-                                }
-                                break;
-        }
-        case IDC_HIDEWINDOW:
-            ShowHideAllDnf(FALSE);
+                    {
+                        FoundCount = 0;
+                        if (!EnumerateAndCloseMutant(IdentifyDNFMutant))
+                        {
+                            MessageBox(hWnd, L"句柄对象枚举中出现了一些问题，是权限不够吗？\n\n如果您使用的操作系统是Windows XP/2003 x64 Edition，请务必下载x64版本使用，可能可以解决这个问题。", L"错误", MB_ICONSTOP | MB_OK);
+                            break;
+                        }
+                    }
+                    if (FoundCount == 0)
+                    {
+                        MessageBox(hWnd, L"咱根本就没找到人...", L"错误", MB_OK | MB_ICONSTOP);
+                    }
+                    else if (FoundCount > 1)
+                    {
+                        MessageBox(hWnd, L"说真的，我最讨厌多P了..", L"成功", MB_OK | MB_ICONINFORMATION);
+                    }
+                    else if (FoundCount == 1)
+                    {
+                        MessageBox(hWnd, L"呃，就一发，就一发。", L"完成", MB_OK | MB_ICONINFORMATION);
+                    }
+                    break;
+                }
+                case IDC_HIDEWINDOW:
+                    ShowHideAllDnf(FALSE);
+                    break;
+                case IDC_SHOWWINDOW:
+                    ShowHideAllDnf(TRUE);
+                    break;
+            }
             break;
-        case IDC_SHOWWINDOW:
-            ShowHideAllDnf(TRUE);
-            FuckJunkProcess();
+        case WM_CLOSE:
+            ExitProcess(0);
             break;
-        }
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
     }
     return 0;
 }

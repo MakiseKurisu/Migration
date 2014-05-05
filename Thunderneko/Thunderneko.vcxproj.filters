@@ -18,10 +18,10 @@
     <ClCompile Include="Thunderneko.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Share\UMC.c">
+    <ClCompile Include="..\Share\RTL.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Share\RTL.c">
+    <ClCompile Include="..\Share\UMC.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -34,7 +34,8 @@ typedef struct _INITIAL_TEB
 // System Information Classes.
 //
 
-typedef enum _SYSTEM_INFORMATION_CLASS {
+typedef enum _SYSTEM_INFORMATION_CLASS
+{
     SystemBasicInformation,
     SystemProcessorInformation,             // obsolete...delete
     SystemPerformanceInformation,
@@ -145,7 +146,8 @@ typedef struct _SYSTEM_HANDLE_INFORMATION_EX
     SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles[1];
 } SYSTEM_HANDLE_INFORMATION_EX, *PSYSTEM_HANDLE_INFORMATION_EX;
 
-typedef struct _UNICODE_STRING {
+typedef struct _UNICODE_STRING
+{
     USHORT Length;
     USHORT MaximumLength;
     __field_bcount_part(MaximumLength, Length) PWCH   Buffer;
@@ -154,7 +156,8 @@ typedef UNICODE_STRING *PUNICODE_STRING;
 typedef const UNICODE_STRING *PCUNICODE_STRING;
 #define UNICODE_NULL ((WCHAR)0) // winnt
 
-typedef enum _OBJECT_INFORMATION_CLASS {
+typedef enum _OBJECT_INFORMATION_CLASS
+{
     ObjectBasicInformation,
     ObjectNameInformation,
     ObjectTypeInformation,
@@ -162,7 +165,8 @@ typedef enum _OBJECT_INFORMATION_CLASS {
     ObjectHandleInformation
 } OBJECT_INFORMATION_CLASS;
 
-typedef enum _POOL_TYPE {
+typedef enum _POOL_TYPE
+{
     NonPagedPool,
     PagedPool,
     NonPagedPoolMustSucceed,
@@ -186,7 +190,8 @@ typedef enum _POOL_TYPE {
     NonPagedPoolCacheAlignedMustSSession = PagedPoolCacheAlignedSession + 1,
 } POOL_TYPE;
 
-typedef struct _OBJECT_TYPE_INFORMATION {
+typedef struct _OBJECT_TYPE_INFORMATION
+{
     UNICODE_STRING          TypeName;
     ULONG                   TotalNumberOfHandles;
     ULONG                   TotalNumberOfObjects;
@@ -206,7 +211,8 @@ typedef struct _OBJECT_TYPE_INFORMATION {
 } OBJECT_TYPE_INFORMATION, *POBJECT_TYPE_INFORMATION;
 
 
-typedef struct _OBJECT_NAME_INFORMATION {
+typedef struct _OBJECT_NAME_INFORMATION
+{
     UNICODE_STRING          Name;
     WCHAR                   NameBuffer[1];
 } OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
@@ -217,7 +223,8 @@ typedef struct _OBJECT_TYPES_INFORMATION
     OBJECT_TYPE_INFORMATION ObjectTypeInformation[1];
 } OBJECT_TYPES_INFORMATION, *POBJECT_TYPES_INFORMATION;
 
-typedef struct _OBJECT_BASIC_INFORMATION {
+typedef struct _OBJECT_BASIC_INFORMATION
+{
     ULONG                   Attributes;
     ACCESS_MASK             DesiredAccess;
     ULONG                   HandleCount;
@@ -231,14 +238,16 @@ typedef struct _OBJECT_BASIC_INFORMATION {
     LARGE_INTEGER           CreationTime;
 } OBJECT_BASIC_INFORMATION, *POBJECT_BASIC_INFORMATION;
 
-typedef struct _RTL_DRIVE_LETTER_CURDIR {
+typedef struct _RTL_DRIVE_LETTER_CURDIR
+{
     USHORT Flags;
     USHORT Length;
     ULONG TimeStamp;
     UNICODE_STRING DosPath;
 } RTL_DRIVE_LETTER_CURDIR, *PRTL_DRIVE_LETTER_CURDIR;
 
-typedef struct _RTL_USER_PROCESS_PARAMETERS {
+typedef struct _RTL_USER_PROCESS_PARAMETERS
+{
     ULONG                   MaximumLength;
     ULONG                   Length;
     ULONG                   Flags;
@@ -270,7 +279,8 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS {
     RTL_DRIVE_LETTER_CURDIR DLCurrentDirectory[0x20];
 } RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
 
-typedef struct _PEB_LDR_DATA {
+typedef struct _PEB_LDR_DATA
+{
     ULONG                   Length;
     BOOLEAN                 Initialized;
     PVOID                   SsHandle;
@@ -281,12 +291,14 @@ typedef struct _PEB_LDR_DATA {
 
 typedef void(*PPEBLOCKROUTINE)(PVOID PebLock);
 
-typedef struct _PEB_FREE_BLOCK {
+typedef struct _PEB_FREE_BLOCK
+{
     struct _PEB_FREE_BLOCK* Next;
     ULONG Size;
 } PEB_FREE_BLOCK, *PPEB_FREE_BLOCK;
 
-typedef struct _PEB {
+typedef struct _PEB
+{
     BOOLEAN                 InheritedAddressSpace;
     BOOLEAN                 ReadImageFileExecOptions;
     BOOLEAN                 BeingDebugged;
@@ -344,7 +356,8 @@ typedef struct _PEB {
 } PEB, *PPEB;
 
 
-typedef struct _PROCESS_BASIC_INFORMATION {
+typedef struct _PROCESS_BASIC_INFORMATION
+{
     PVOID Reserved1;
     PPEB PebBaseAddress;
     PVOID Reserved2[2];
@@ -364,7 +377,8 @@ typedef struct _OBJECT_ATTRIBUTES
 
 #define DUPLICATE_SAME_ATTRIBUTES 0x4
 
-typedef enum _PROCESSINFOCLASS {
+typedef enum _PROCESSINFOCLASS
+{
     ProcessBasicInformation,
     ProcessQuotaLimits,
     ProcessIoCounters,
@@ -402,21 +416,21 @@ typedef enum _PROCESSINFOCLASS {
 #ifdef __cplusplus
 extern "C" {
 #endif
-NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation(IN SYSTEM_INFORMATION_CLASS SystemInformationClass, OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL);
-NTSYSAPI NTSTATUS NTAPI ZwQueryObject(IN HANDLE ObjectHandle, IN OBJECT_INFORMATION_CLASS ObjectInformationClass, OUT PVOID ObjectInformation, IN ULONG Length, OUT PULONG ResultLength);
-NTSYSAPI NTSTATUS NTAPI ZwDuplicateObject(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
-typedef NTSYSAPI NTSTATUS (NTAPI* PZWDUMPLICATEOBJECT)(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
-NTSYSAPI NTSTATUS NTAPI NtOpenProcess(OUT PHANDLE ProcessHandle, IN ACCESS_MASK AccessMask, IN POBJECT_ATTRIBUTES ObjectAttributes, IN PCLIENT_ID ClientId);
-NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess(IN HANDLE ProcessHandle, IN PROCESSINFOCLASS ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength);
-NTSYSAPI NTSTATUS NTAPI ZwClose(IN HANDLE ObjectHandle);
-typedef NTSYSAPI NTSTATUS(NTAPI* PZWCLOSE)(IN HANDLE ObjectHandle);
+    NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation(IN SYSTEM_INFORMATION_CLASS SystemInformationClass, OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL);
+    NTSYSAPI NTSTATUS NTAPI ZwQueryObject(IN HANDLE ObjectHandle, IN OBJECT_INFORMATION_CLASS ObjectInformationClass, OUT PVOID ObjectInformation, IN ULONG Length, OUT PULONG ResultLength);
+    NTSYSAPI NTSTATUS NTAPI ZwDuplicateObject(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
+    typedef NTSYSAPI NTSTATUS(NTAPI* PZWDUMPLICATEOBJECT)(IN HANDLE SourceProcessHandle, IN HANDLE SourceHandle, IN HANDLE TargetProcessHandle, OUT PHANDLE TargetHandle, IN ACCESS_MASK DesiredAccess OPTIONAL, IN ULONG HandleAttributes, IN ULONG Options);
+    NTSYSAPI NTSTATUS NTAPI NtOpenProcess(OUT PHANDLE ProcessHandle, IN ACCESS_MASK AccessMask, IN POBJECT_ATTRIBUTES ObjectAttributes, IN PCLIENT_ID ClientId);
+    NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess(IN HANDLE ProcessHandle, IN PROCESSINFOCLASS ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength);
+    NTSYSAPI NTSTATUS NTAPI ZwClose(IN HANDLE ObjectHandle);
+    typedef NTSYSAPI NTSTATUS(NTAPI* PZWCLOSE)(IN HANDLE ObjectHandle);
 
-NTSYSAPI NTSTATUS NTAPI ZwAllocateVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __in ULONG_PTR ZeroBits, __inout PSIZE_T RegionSize, __in ULONG AllocationType, __in ULONG Protect);
-NTSYSAPI NTSTATUS NTAPI ZwWriteVirtualMemory(IN HANDLE ProcessHandle, IN PVOID BaseAddress, IN PVOID Buffer, IN ULONG NumberOfBytesToWrite, OUT PULONG NumberOfBytesWritten OPTIONAL);
-NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory(IN HANDLE ProcessHandle, IN OUT PVOID *BaseAddress, IN OUT PULONG_PTR NumberOfBytesToProtect, IN ULONG NewAccessProtection, OUT PULONG OldAccessProtection);
-NTSYSAPI NTSTATUS NTAPI ZwGetContextThread(IN HANDLE ThreadHandle, OUT PCONTEXT pContext);
-NTSYSAPI NTSTATUS NTAPI ZwCreateThread(OUT PHANDLE ThreadHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL, IN HANDLE ProcessHandle, OUT PCLIENT_ID ClientId, IN PCONTEXT ThreadContext, IN PINITIAL_TEB InitialTeb, IN BOOLEAN CreateSuspended);
-NTSYSAPI NTSTATUS NTAPI ZwResumeThread(IN HANDLE ThreadHandle, OUT PULONG SuspendCount OPTIONAL);
+    NTSYSAPI NTSTATUS NTAPI ZwAllocateVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __in ULONG_PTR ZeroBits, __inout PSIZE_T RegionSize, __in ULONG AllocationType, __in ULONG Protect);
+    NTSYSAPI NTSTATUS NTAPI ZwWriteVirtualMemory(IN HANDLE ProcessHandle, IN PVOID BaseAddress, IN PVOID Buffer, IN ULONG NumberOfBytesToWrite, OUT PULONG NumberOfBytesWritten OPTIONAL);
+    NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory(IN HANDLE ProcessHandle, IN OUT PVOID *BaseAddress, IN OUT PULONG_PTR NumberOfBytesToProtect, IN ULONG NewAccessProtection, OUT PULONG OldAccessProtection);
+    NTSYSAPI NTSTATUS NTAPI ZwGetContextThread(IN HANDLE ThreadHandle, OUT PCONTEXT pContext);
+    NTSYSAPI NTSTATUS NTAPI ZwCreateThread(OUT PHANDLE ThreadHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL, IN HANDLE ProcessHandle, OUT PCLIENT_ID ClientId, IN PCONTEXT ThreadContext, IN PINITIAL_TEB InitialTeb, IN BOOLEAN CreateSuspended);
+    NTSYSAPI NTSTATUS NTAPI ZwResumeThread(IN HANDLE ThreadHandle, OUT PULONG SuspendCount OPTIONAL);
 #ifdef __cplusplus
 };
 #endif

@@ -29,13 +29,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Share\RTL.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Migration.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Share\UMC.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Share\RTL.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -46,5 +46,15 @@
     <ResourceCompile Include="res\Migration.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\256.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="res\manifest.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

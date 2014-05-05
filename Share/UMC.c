@@ -31,7 +31,7 @@ HANDLE WINAPI OsCreateRemoteThread2(
     ULONG_PTR  Stack = 0;
     INITIAL_TEB InitialTeb;
     ULONG    x;
-    const CHAR myBaseThreadInitThunk [] =
+    const CHAR myBaseThreadInitThunk[] =
     {
         //   00830000    8BFF            mov     edi, edi
         '\x8B', '\xFF',
@@ -149,8 +149,7 @@ HANDLE WINAPI OsCreateRemoteThread2(
     context.Rax = (ULONG_PTR) lpStartAddress;
     context.Rcx = (ULONG_PTR) GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlExitUserThread"); //ntdll.RtlExitUserThread
     context.Rdx = 0x00000000; //nouse
-#endif
-#ifndef _WIN64
+#else
     context.Esp = (ULONG_PTR) InitialTeb.StackBase;
     context.Eip = (ULONG_PTR) pBaseThreadThunk; //这里填写需要加载的地址，不过需要自己终结自己
     context.Ebx = (ULONG_PTR) lpParameter;
@@ -226,7 +225,7 @@ BOOL RemoteCloseHandle(HANDLE hProcess, HANDLE hHandle)
 BOOL InjectRemoteCloseHandle(DWORD TargetProcessId, HANDLE hProcess, HANDLE hHandle)
 {
     // x64不适用！（考虑到要插入的进程是原生x64，恐怕..）
-    BYTE CloseCode [] = {
+    BYTE CloseCode[] = {
         /*push DUPLICATE_CLOSE_SOURCE*/
         0x6A, 0x01,
         /*push 0*/
@@ -516,22 +515,22 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
 
                 switch (ShouldClose(NameInfo->Name.Buffer, NameInfo->Name.Length))
                 {
-                case CLOSE_DIRECT:
-                {
-                                     ZwClose(hObject);
-                                     hObject = INVALID_HANDLE_VALUE;
-                                     RemoteCloseHandle(hProcess, HandleInformation->Handles[i].HandleValue);
-                                     break;
-                }
-                case CLOSE_INJECT:
-                {
-                                     ZwClose(hObject);
-                                     hObject = INVALID_HANDLE_VALUE;
-                                     InjectRemoteCloseHandleByName(L"svchost.exe", hProcess, HandleInformation->Handles[i].HandleValue);
-                                     break;
-                }
-                default:
-                    break;
+                    case CLOSE_DIRECT:
+                    {
+                        ZwClose(hObject);
+                        hObject = INVALID_HANDLE_VALUE;
+                        RemoteCloseHandle(hProcess, HandleInformation->Handles[i].HandleValue);
+                        break;
+                    }
+                    case CLOSE_INJECT:
+                    {
+                        ZwClose(hObject);
+                        hObject = INVALID_HANDLE_VALUE;
+                        InjectRemoteCloseHandleByName(L"svchost.exe", hProcess, HandleInformation->Handles[i].HandleValue);
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -553,6 +552,7 @@ BOOL EnumerateAndCloseMutant(CLOSECALLBACK ShouldClose)
             }
         }
     }
+    
     GlobalFree(OutBuffer);
     return TRUE;
 }

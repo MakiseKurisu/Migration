@@ -6,3 +6,7 @@
 *.vcxproj.user
 */Win32*
 */x64*
+*.pdb
+*.ilk
+*.sdf
+*.opensdf

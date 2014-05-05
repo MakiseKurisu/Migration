@@ -58,7 +58,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>ntdll.lib;kernel32.lib</AdditionalDependencies>
       <EntryPointSymbol>DllMain</EntryPointSymbol>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
