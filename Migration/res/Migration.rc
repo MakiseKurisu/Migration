@@ -39,7 +39,7 @@ BEGIN
     GROUPBOX        "脸面相关",IDC_STATIC,1,42,171,46
     PUSHBUTTON      "躲猫猫",IDC_HIDEWINDOW,18,57,60,24
     PUSHBUTTON      "跨省追捕",IDC_SHOWWINDOW,93,57,60,24
-    LTEXT           "说明:\n开一个游戏，先塞棒棒糖，然后跟TP娘玩躲猫猫，\n再开第二个游戏，然后把第一个游戏跨省出来。\n12月19日更新，谁叫TP娘喜欢3P呢。（茶\n\n\nWinXP/2003/Vista/Win7通杀，x86/x64通杀。\n稳定性: x64>x86(Win7/Vista)>x86(WinXP/2003)",IDC_STATIC,5,90,165,68
+    LTEXT           "说明:\n开一个游戏，先塞棒棒糖，然后跟TP娘玩躲猫猫，\n再开第二个游戏，然后把第一个游戏跨省出来。\n12月19日更新，谁叫TP娘喜欢3P呢。（茶\n5月5日更新，使用略有变动，详情请查看说明文件\n\nWinXP/2003/Vista/Win7通杀，x86/x64通杀。\n稳定性: x64>x86(Win7/Vista)>x86(WinXP/2003)",IDC_STATIC,5,90,165,68
     LTEXT           "Coded by Riatre|Maintained by Excalibur",IDC_STATIC,44,158,126,8,WS_DISABLED,WS_EX_RIGHT
 END
 

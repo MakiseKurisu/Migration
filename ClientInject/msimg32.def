@@ -1,0 +1,7 @@
+﻿LIBRARY "msimg32.dll"
+EXPORTS
+	vSetDdrawflag=vSetDdrawflagStub
+	AlphaBlend=AlphaBlendStub
+    DllInitialize=DllInitializeStub PRIVATE
+    GradientFill=GradientFillStub
+    TransparentBlt=TransparentBltStub

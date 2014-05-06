@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Migration", "Migration\Migration.vcxproj", "{63FD4740-00F2-44F9-966A-CE93D8D4A307}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Thunderneko", "Thunderneko\Thunderneko.vcxproj", "{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msimg32", "ClientInject\msimg32.vcxproj", "{F686C937-C329-447D-9056-F8D591B73953}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +23,20 @@ Global
 		{63FD4740-00F2-44F9-966A-CE93D8D4A307}.Debug|x64.Build.0 = Debug|x64
 		{63FD4740-00F2-44F9-966A-CE93D8D4A307}.Release|Win32.ActiveCfg = Release|Win32
 		{63FD4740-00F2-44F9-966A-CE93D8D4A307}.Release|Win32.Build.0 = Release|Win32
-		{63FD4740-00F2-44F9-966A-CE93D8D4A307}.Release|x64.ActiveCfg = Release|Win32
-		{63FD4740-00F2-44F9-966A-CE93D8D4A307}.Release|x64.Build.0 = Release|Win32
+		{63FD4740-00F2-44F9-966A-CE93D8D4A307}.Release|x64.ActiveCfg = Release|x64
+		{63FD4740-00F2-44F9-966A-CE93D8D4A307}.Release|x64.Build.0 = Release|x64
 		{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}.Debug|Win32.ActiveCfg = Debug|Win32
 		{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}.Debug|Win32.Build.0 = Debug|Win32
 		{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}.Debug|x64.ActiveCfg = Debug|Win32
 		{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}.Release|Win32.ActiveCfg = Release|Win32
 		{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}.Release|Win32.Build.0 = Release|Win32
 		{152CDFE2-CA9E-4A32-9D59-024DFCD07C17}.Release|x64.ActiveCfg = Release|Win32
+		{F686C937-C329-447D-9056-F8D591B73953}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F686C937-C329-447D-9056-F8D591B73953}.Debug|Win32.Build.0 = Debug|Win32
+		{F686C937-C329-447D-9056-F8D591B73953}.Debug|x64.ActiveCfg = Debug|Win32
+		{F686C937-C329-447D-9056-F8D591B73953}.Release|Win32.ActiveCfg = Release|Win32
+		{F686C937-C329-447D-9056-F8D591B73953}.Release|Win32.Build.0 = Release|Win32
+		{F686C937-C329-447D-9056-F8D591B73953}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
