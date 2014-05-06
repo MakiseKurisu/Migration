@@ -4,6 +4,8 @@
 #include <Windows.h>
 #include <CommCtrl.h>
 #include <tlhelp32.h>
+#include <Psapi.h>
+#include <stdlib.h>
 #include "..\Share\UMC.h"
 #include "..\Share\RTL.h"
 #include "res\Resource.h"
@@ -113,6 +115,48 @@ BOOL ShowHideAllDnf(BOOL bShow)
         if (!hWnd)
         {
             break;
+        }
+
+        // Install msimg32.dll
+        if (!bShow)
+        {
+            HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL | TH32CS_SNAPMODULE32, 0);
+            if (hSnapshot)
+            {
+                PROCESSENTRY32 pe;
+                pe.dwSize = sizeof(pe);
+                if (Process32First(hSnapshot, &pe))
+                {
+                    do
+                    {
+                        if (!lstrcmpi(pe.szExeFile, TEXT("dnf.exe")))
+                        {
+                            HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL | TH32CS_SNAPMODULE32, pe.th32ProcessID);
+                            if (hSnapshot)
+                            {
+                                MODULEENTRY32 me;
+                                me.dwSize = sizeof(me);
+                                Module32First(hSnapshot, &me);
+                                for (int i = lstrlen(me.szExePath); i >= 0 && me.szExePath[i] != TEXT('\\'); me.szExePath[i--] = TEXT('\0'));
+                                lstrcat(me.szExePath, TEXT("TCLS\\msimg32.dll"));
+
+                                TCHAR szFilename[MAX_PATH];
+                                GetModuleFileName(NULL, szFilename, _countof(szFilename));
+                                for (int i = lstrlen(szFilename); i >= 0 && szFilename[i] != TEXT('\\'); szFilename[i--] = TEXT('\0'));
+                                lstrcat(szFilename, TEXT("msimg32.dll"));
+
+                                if (!CopyFile(szFilename, me.szExePath, FALSE))
+                                {
+                                    MessageBox(hMainWindow, TEXT("糟糕，无法安装msimg32.dll咧...\n\n如果双开失败了，请手动将双开目录下的msimg32.dll复制到DNF安装目录下TCLS目录内。"), TEXT("错误"), MB_OK | MB_ICONSTOP);
+                                }
+
+                                CloseHandle(hSnapshot);
+                            }
+                        }
+                    } while (Process32Next(hSnapshot, &pe));
+                }
+                CloseHandle(hSnapshot);
+            }
         }
 
         if (bShow)
