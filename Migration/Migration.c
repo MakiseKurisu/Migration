@@ -145,9 +145,12 @@ BOOL ShowHideAllDnf(BOOL bShow)
                                 for (int i = lstrlen(szFilename); i >= 0 && szFilename[i] != TEXT('\\'); szFilename[i--] = TEXT('\0'));
                                 lstrcat(szFilename, TEXT("msimg32.dll"));
 
-                                if (!CopyFile(szFilename, me.szExePath, FALSE))
+                                if (!CopyFile(szFilename, me.szExePath, TRUE))
                                 {
-                                    MessageBox(hMainWindow, TEXT("糟糕，无法安装msimg32.dll咧...\n\n如果双开失败了，请手动将双开目录下的msimg32.dll复制到DNF安装目录下TCLS目录内。"), TEXT("错误"), MB_OK | MB_ICONSTOP);
+                                    if (GetLastError() != ERROR_FILE_EXISTS)
+                                    {
+                                        MessageBox(hMainWindow, TEXT("糟糕，无法安装msimg32.dll咧...\n\n如果双开失败了，请手动将双开目录下的msimg32.dll复制到DNF安装目录下TCLS目录内。"), TEXT("错误"), MB_OK | MB_ICONSTOP);
+                                    }
                                 }
 
                                 CloseHandle(hSnapshot);
