@@ -179,10 +179,11 @@ BOOL ShowHideAllDnf(BOOL bShow)
 
 void FuckJunkProcess()
 {
+#define MAX_JUNK_SIZE 128
     HANDLE hProcessSnap = NULL;
     PROCESSENTRY32 pe32 = { 0 };
     hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    DWORD PidCollect[16] = { 0 };
+    DWORD PidCollect[MAX_JUNK_SIZE] = { 0 };
     ULONG_PTR Collected = 0;
     int DNFCount = 0;
 
@@ -191,7 +192,19 @@ void FuckJunkProcess()
     {
         do
         {
-            if (!lstrcmpi(pe32.szExeFile, L"qqlogin.exe") || !lstrcmpi(pe32.szExeFile, L"QQDL.exe") || !lstrcmpi(pe32.szExeFile, L"TenSafe.exe"))
+            if (!lstrcmpi(pe32.szExeFile, L"QQDL.exe") || !lstrcmpi(pe32.szExeFile, L"TenioDL.exe") || !lstrcmpi(pe32.szExeFile, L"Tencentdl.exe"))
+            {
+                PidCollect[Collected++] = pe32.th32ProcessID;
+            }
+            else if (!lstrcmpi(pe32.szExeFile, L"TXPlatform.exe") || !lstrcmpi(pe32.szExeFile, L"TASLogin.exe") || !lstrcmpi(pe32.szExeFile, L"BackgroundDownloader.exe"))
+            {
+                PidCollect[Collected++] = pe32.th32ProcessID;
+            }
+            else if (!lstrcmpi(pe32.szExeFile, L"QQLogin.exe") || !lstrcmpi(pe32.szExeFile, L"QQExternal.exe") || !lstrcmpi(pe32.szExeFile, L"TenSafe_1.exe"))
+            {
+                PidCollect[Collected++] = pe32.th32ProcessID;
+            }
+            else if (!lstrcmpi(pe32.szExeFile, L"TenSafe_2.exe") || !lstrcmpi(pe32.szExeFile, L"TenSafe.exe") || !lstrcmpi(pe32.szExeFile, L"TenSafe.exe_1"))
             {
                 PidCollect[Collected++] = pe32.th32ProcessID;
             }
@@ -199,7 +212,7 @@ void FuckJunkProcess()
             {
                 DNFCount++;
             }
-        } while (Process32Next(hProcessSnap, &pe32));
+        } while (Process32Next(hProcessSnap, &pe32) && Collected < MAX_JUNK_SIZE);
     }
 
     CloseHandle(hProcessSnap);
