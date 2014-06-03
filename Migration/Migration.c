@@ -177,6 +177,43 @@ BOOL ShowHideAllDnf(BOOL bShow)
     return TRUE;
 }
 
+void FuckJunkProcess()
+{
+    HANDLE hProcessSnap = NULL;
+    PROCESSENTRY32 pe32 = { 0 };
+    hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    DWORD PidCollect[16] = { 0 };
+    ULONG_PTR Collected = 0;
+    int DNFCount = 0;
+
+    pe32.dwSize = sizeof(pe32);
+    if (Process32First(hProcessSnap, &pe32))
+    {
+        do
+        {
+            if (!lstrcmpi(pe32.szExeFile, L"qqlogin.exe") || !lstrcmpi(pe32.szExeFile, L"QQDL.exe") || !lstrcmpi(pe32.szExeFile, L"TenSafe.exe"))
+            {
+                PidCollect[Collected++] = pe32.th32ProcessID;
+            }
+            else if (!lstrcmpi(pe32.szExeFile, L"dnf.exe"))
+            {
+                DNFCount++;
+            }
+        } while (Process32Next(hProcessSnap, &pe32));
+    }
+
+    CloseHandle(hProcessSnap);
+    if (DNFCount >= 2)
+    {
+        for (ULONG_PTR i = 0; i < Collected; i++)
+        {
+            HANDLE hMLGB = OpenProcess(PROCESS_TERMINATE, FALSE, PidCollect[i]);
+            TerminateProcess(hMLGB, 0);
+            CloseHandle(hMLGB);
+        }
+    }
+}
+
 int InjectDllAndRunFunc(LPCWSTR pszDllFile, DWORD dwProcessId, SIZE_T FuncOffset)
 {
     HANDLE hProcess = NULL;
@@ -366,6 +403,7 @@ INT_PTR CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     break;
                 case IDC_SHOWWINDOW:
                     ShowHideAllDnf(TRUE);
+                    FuckJunkProcess();
                     break;
             }
             break;
